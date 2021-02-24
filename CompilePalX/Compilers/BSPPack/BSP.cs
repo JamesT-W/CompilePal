@@ -55,7 +55,7 @@ namespace CompilePalX.Compilers.BSPPack
 
         public FileInfo file { get; private set; }
         private bool isL4D2 = false;
-        public ulong workshopId = 0;
+        public ulong workshopId = 0; // retrieved only in CS:GO Danger Zone when tablet or spawn select files are packed for the workshop
 
         public BSP(FileInfo file)
         {
