@@ -383,6 +383,7 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.txt.Key != default(string) ? "\n-loading screen text" : "") +
                     (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
                     (map.cameras.Key != default(string) ? "\n-cameras file" : "") +
+                    (map.retake.Key != default(string) ? "\n-retake file" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "") +
                     (map.res.Key != default(string) ? "\n-res file" : "") +
                     (map.tabletVtfLocal.Key != default(string) ? "\n-tablet file local" : "") +

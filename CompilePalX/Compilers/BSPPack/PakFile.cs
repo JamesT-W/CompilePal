@@ -92,6 +92,9 @@ namespace CompilePalX.Compilers.BSPPack
             if (bsp.cameras.Key != default(string))
                 AddFile(bsp.cameras, (b => b.cameras = default), bsp);
 
+            if (bsp.retake.Key != default(string))
+                AddFile(bsp.retake, (b => b.retake = default), bsp);
+
             if (bsp.radartxt.Key != default(string))
                 AddFile(bsp.radartxt, (b => b.radartxt = default), bsp);
 

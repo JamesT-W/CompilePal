@@ -705,6 +705,19 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             }
 
+            // csgo retake file (.txt)
+            internalPath = "maps/" + bspName + "_retake.txt";
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.retake = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
+            }
+
             // csgo panorama map icons (.png)
             internalPath = "materials/panorama/images/map_icons/screenshots/"; 
             var panoramaMapIcons = new List<KeyValuePair<string, string>>();
