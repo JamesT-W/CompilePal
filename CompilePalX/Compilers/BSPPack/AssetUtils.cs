@@ -731,6 +731,19 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.PanoramaMapIcons = panoramaMapIcons;
 
+            // csgo spawnmask file (.png)
+            internalPath = "maps/" + bspName + "_spawnmask.png";
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.spawnmaskPng = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
+            }
+
             // csgo tablet file local (.vtf)
             var tabletBaseFolderpath = "materials/models/weapons/v_models/tablet/";
             internalPath = tabletBaseFolderpath + "tablet_radar_" + bspName + ".vtf";

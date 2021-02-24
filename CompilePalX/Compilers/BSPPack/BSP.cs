@@ -50,6 +50,7 @@ namespace CompilePalX.Compilers.BSPPack
         public List<KeyValuePair<string, string>> EffectScriptList { get; set; }
         public List<string> vscriptList { get; set; }
         public List<KeyValuePair<string, string>> PanoramaMapIcons { get; set; }
+        public KeyValuePair<string, string> spawnmaskPng { get; set; }
         public KeyValuePair<string, string> tabletVtfLocal { get; set; }
         public KeyValuePair<string, string> tabletVtfWorkshop { get; set; }
         public KeyValuePair<string, string> spawnSelectPngLocal { get; set; }

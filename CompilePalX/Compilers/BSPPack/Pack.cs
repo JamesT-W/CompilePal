@@ -386,6 +386,7 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.retake.Key != default(string) ? "\n-retake file" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "") +
                     (map.res.Key != default(string) ? "\n-res file" : "") +
+                    (map.spawnmaskPng.Key != default(string) ? "\n-spawn mask file" : "") +
                     (map.tabletVtfLocal.Key != default(string) ? "\n-tablet file local" : "") +
                     (map.tabletVtfWorkshop.Key != default(string) ? "\n-tablet file workshop" : "") +
                     (map.spawnSelectPngLocal.Key != default(string) ? "\n-spawn select file local" : "") +

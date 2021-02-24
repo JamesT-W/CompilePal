@@ -98,6 +98,9 @@ namespace CompilePalX.Compilers.BSPPack
             if (bsp.radartxt.Key != default(string))
                 AddFile(bsp.radartxt, (b => b.radartxt = default), bsp);
 
+            if (bsp.spawnmaskPng.Key != default(string))
+                AddFile(bsp.spawnmaskPng, (b => b.spawnmaskPng = default), bsp);
+
             if (bsp.tabletVtfLocal.Key != default(string))
                 AddFile(bsp.tabletVtfLocal, (b => b.tabletVtfLocal = default), bsp);
 
