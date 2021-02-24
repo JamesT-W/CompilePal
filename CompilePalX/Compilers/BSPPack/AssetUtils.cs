@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -705,7 +705,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.PanoramaMapIcons = panoramaMapIcons;
 
-            // Tablet file local
+            // csgo tablet file local (.vtf)
             var tabletBaseFolderpath = "materials/models/weapons/v_models/tablet/";
             internalPath = tabletBaseFolderpath + "tablet_radar_" + bspName + ".vtf";
             foreach (string source in sourceDirectories)
@@ -723,7 +723,7 @@ namespace CompilePalX.Compilers.BSPPack
                 catch (DirectoryNotFoundException e) { }
             }
 
-            // Tablet file workshop
+            // csgo tablet file workshop (.vtf)
             foreach (string source in sourceDirectories)
             {
                 string externalFolderPath = source + "/" + tabletBaseFolderpath + "/tablet_radar_workshop/";
@@ -752,7 +752,7 @@ namespace CompilePalX.Compilers.BSPPack
                     break;
             }
 
-            // Spawn select file local
+            // csgo spawn select file local (.png)
             var spawnSelectBaseFolderpath = "materials/panorama/images/survival/spawnselect/";
             internalPath = spawnSelectBaseFolderpath + "map_" + bspName + ".png";
             foreach (string source in sourceDirectories)
@@ -770,7 +770,7 @@ namespace CompilePalX.Compilers.BSPPack
                 catch (DirectoryNotFoundException e) { }
             }
 
-            // Spawn select file workshop
+            // csgo spawn select file workshop (.png)
             foreach (string source in sourceDirectories)
             {
                 string externalFolderPath = source + "/" + spawnSelectBaseFolderpath + "/map_workshop/";
