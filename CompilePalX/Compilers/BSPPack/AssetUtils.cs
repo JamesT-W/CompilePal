@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -690,6 +690,19 @@ namespace CompilePalX.Compilers.BSPPack
                 foreach (string extension in new String[] {".jpg", ".jpeg"})
                     if (File.Exists(externalPath + extension))
                         bsp.jpg = new KeyValuePair<string, string>(internalPath + ".jpg", externalPath + extension);
+            }
+
+            // csgo cameras file (.txt)
+            internalPath = "maps/" + bspName + "_cameras.txt";
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.cameras = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
             }
 
             // csgo panorama map icons (.png)
