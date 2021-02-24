@@ -94,7 +94,7 @@
     "Description": "Generate per-vertex prop_static lighting (uses higher/final quality processing)",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only! -StaticPropLightingOld and -final recommended instead."
+    "Warning": "*Obsolete* CS:GO Only! -StaticPropLightingOld and -final recommended instead."
   },
   {
     "Name": "Static Prop Lighting Old",
