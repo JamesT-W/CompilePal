@@ -86,7 +86,7 @@
     "Description": "Generate per-vertex prop_static lighting",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": " always enabled for light_spot entities."
+    "Warning": " always enabled for light_spot entities. -StaticPropLightingOld recommended instead for CS:GO."
   },
   {
     "Name": "Static Prop Lighting Final",
@@ -94,7 +94,7 @@
     "Description": "Generate per-vertex prop_static lighting (uses higher/final quality processing)",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "CS:GO Only! -StaticPropLightingOld and -final recommended instead."
   },
   {
     "Name": "Static Prop Lighting Old",
