@@ -383,7 +383,11 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.txt.Key != default(string) ? "\n-loading screen text" : "") +
                     (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "") +
-                    (map.res.Key != default(string) ? "\n-res file" : "");
+                    (map.res.Key != default(string) ? "\n-res file" : "") +
+                    (map.tabletVtfLocal.Key != default(string) ? "\n-tablet file local" : "") +
+                    (map.tabletVtfWorkshop.Key != default(string) ? "\n-tablet file workshop" : "") +
+                    (map.spawnSelectPngLocal.Key != default(string) ? "\n-spawn select file local" : "") +
+                    (map.spawnSelectPngWorkshop.Key != default(string) ? "\n-spawn select file workshop" : "");
 
                 if (additionalFiles != "")
                     CompilePalLogger.LogLine("additional files: " + additionalFiles);

@@ -500,11 +500,13 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
-            
+
+            var bspName = bsp.file.Name.Replace(".bsp", string.Empty);
+
             // Soundscape file
-            string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
+            string internalPath = "scripts/soundscapes_" + bspName + ".txt";
             // Soundscapes can have either .txt or .vsc extensions
-            string internalPathVsc = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".vsc");
+            string internalPathVsc = "scripts/soundscapes_" + bspName + ".vsc";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -523,7 +525,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // Soundscript file
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "") + "_level_sounds.txt";
+            internalPath = "maps/" + bspName + "_level_sounds.txt";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -536,7 +538,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // Nav file (.nav)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".nav");
+            internalPath = "maps/" + bspName + ".nav";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -623,7 +625,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // Radar file
-            internalPath = "resource/overviews/" + bsp.file.Name.Replace(".bsp", ".txt");
+            internalPath = "resource/overviews/" + bspName + ".txt";
             List<KeyValuePair<string, string>> ddsfiles = new List<KeyValuePair<string, string>>();
             foreach (string source in sourceDirectories)
             {
@@ -654,7 +656,7 @@ namespace CompilePalX.Compilers.BSPPack
             bsp.radardds = ddsfiles;
 
             // csgo kv file (.kv)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".kv");
+            internalPath = "maps/" + bspName + ".kv";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -667,7 +669,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // csgo loading screen text file (.txt)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".txt");
+            internalPath = "maps/" + bspName + ".txt";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -680,7 +682,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // csgo loading screen image (.jpg)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "");
+            internalPath = "maps/" + bspName;
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -696,7 +698,6 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
-                string bspName = bsp.file.Name.Replace(".bsp", "");
 
                 foreach (string resolution in new[] {"360p", "1080p"})
                     if (File.Exists($"{externalPath}{resolution}/{bspName}.png"))
@@ -704,11 +705,136 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.PanoramaMapIcons = panoramaMapIcons;
 
+            // Tablet file local
+            var tabletBaseFolderpath = "materials/models/weapons/v_models/tablet/";
+            internalPath = tabletBaseFolderpath + "tablet_radar_" + bspName + ".vtf";
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                try
+                {
+                    if (File.Exists(externalPath))
+                    {
+                        bsp.tabletVtfLocal = new KeyValuePair<string, string>(internalPath, externalPath);
+                        break;
+                    }
+                }
+                catch (DirectoryNotFoundException e) { }
+            }
+
+            // Tablet file workshop
+            foreach (string source in sourceDirectories)
+            {
+                string externalFolderPath = source + "/" + tabletBaseFolderpath + "/tablet_radar_workshop/";
+
+                try
+                {
+                    foreach (var folderName in Directory.GetDirectories(externalFolderPath).Select(Path.GetFileName).ToArray())
+                    {
+                        if (ulong.TryParse(folderName, out ulong num))
+                        {
+                            internalPath = tabletBaseFolderpath + $"tablet_radar_workshop/{num}/" + bspName + ".vtf";
+                            string externalPath = source + "/" + internalPath;
+
+                            if (File.Exists(externalPath))
+                            {
+                                bsp.workshopId = num;
+                                bsp.tabletVtfWorkshop = new KeyValuePair<string, string>(internalPath, externalPath);
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (DirectoryNotFoundException e) { }
+
+                if (bsp.workshopId > 0)
+                    break;
+            }
+
+            // Spawn select file local
+            var spawnSelectBaseFolderpath = "materials/panorama/images/survival/spawnselect/";
+            internalPath = spawnSelectBaseFolderpath + "map_" + bspName + ".png";
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                try
+                {
+                    if (File.Exists(externalPath))
+                    {
+                        bsp.spawnSelectPngLocal = new KeyValuePair<string, string>(internalPath, externalPath);
+                        break;
+                    }
+                }
+                catch (DirectoryNotFoundException e) { }
+            }
+
+            // Spawn select file workshop
+            foreach (string source in sourceDirectories)
+            {
+                string externalFolderPath = source + "/" + spawnSelectBaseFolderpath + "/map_workshop/";
+
+                try
+                {
+                    foreach (var folderName in Directory.GetDirectories(externalFolderPath).Select(Path.GetFileName).ToArray())
+                    {
+                        if (ulong.TryParse(folderName, out ulong num))
+                        {
+                            internalPath = spawnSelectBaseFolderpath + $"map_workshop/{num}/" + bspName + ".png";
+                            string externalPath = source + "/" + internalPath;
+
+                            if (File.Exists(externalPath))
+                            {
+                                bsp.workshopId = num;
+                                bsp.spawnSelectPngWorkshop = new KeyValuePair<string, string>(internalPath, externalPath);
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (DirectoryNotFoundException e) { }
+
+                if (bsp.workshopId > 0)
+                    break;
+            }
+
+            // Duplicate the workshop tablet file to the local tablet file location if it does not exist
+            if (bsp.tabletVtfLocal.Equals(default(KeyValuePair<string, string>)) && !bsp.tabletVtfWorkshop.Equals(default(KeyValuePair<string, string>)))
+            {
+                internalPath = tabletBaseFolderpath + "tablet_radar_" + bspName + ".vtf";
+                string source = bsp.tabletVtfWorkshop.Value.Split(new string[] { "materials/" }, StringSplitOptions.None).FirstOrDefault();
+                string externalPath = source + "/" + internalPath;
+                bsp.tabletVtfLocal = new KeyValuePair<string, string>(internalPath, bsp.tabletVtfWorkshop.Value);
+            }
+            else if (bsp.workshopId > 0 && !bsp.tabletVtfLocal.Equals(default(KeyValuePair<string, string>)) && bsp.tabletVtfWorkshop.Equals(default(KeyValuePair<string, string>))) // Can only be done if the workshop id is known
+            {
+                internalPath = tabletBaseFolderpath + $"tablet_radar_workshop/{bsp.workshopId}/" + bspName + ".vtf";
+                string source = bsp.tabletVtfLocal.Value.Split(new string[] { "materials/" }, StringSplitOptions.None).FirstOrDefault();
+                string externalPath = source + "/" + internalPath;
+                bsp.tabletVtfWorkshop = new KeyValuePair<string, string>(internalPath, bsp.tabletVtfLocal.Value);
+            }
+
+            // Duplicate the workshop spawn select file to the local spawn select file location if it does not exist
+            if (bsp.spawnSelectPngLocal.Equals(default(KeyValuePair<string, string>)) && !bsp.spawnSelectPngWorkshop.Equals(default(KeyValuePair<string, string>)))
+            {
+                internalPath = spawnSelectBaseFolderpath + "map_" + bspName + ".vtf";
+                string source = bsp.spawnSelectPngWorkshop.Value.Split(new string[] { "materials/" }, StringSplitOptions.None).FirstOrDefault();
+                string externalPath = source + "/" + internalPath;
+                bsp.spawnSelectPngLocal = new KeyValuePair<string, string>(internalPath, bsp.spawnSelectPngWorkshop.Value);
+            }
+            else if (bsp.workshopId > 0 && !bsp.spawnSelectPngLocal.Equals(default(KeyValuePair<string, string>)) && bsp.spawnSelectPngWorkshop.Equals(default(KeyValuePair<string, string>))) // Can only be done if the workshop id is known
+            {
+                internalPath = spawnSelectBaseFolderpath + $"map_workshop/{bsp.workshopId}/" + bspName + ".vtf";
+                string source = bsp.spawnSelectPngLocal.Value.Split(new string[] { "materials/" }, StringSplitOptions.None).FirstOrDefault();
+                string externalPath = source + "/" + internalPath;
+                bsp.spawnSelectPngWorkshop = new KeyValuePair<string, string>(internalPath, bsp.spawnSelectPngLocal.Value);
+            }
+
             // language files, particle manifests and soundscript file
             // (these language files are localized text files for tf2 mission briefings)
             string internalDir = "maps/";
-            string name = bsp.file.Name.Replace(".bsp", "");
-            string searchPattern = name + "*.txt";
+            string searchPattern = bspName + "*.txt";
             List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string, string>>();
 
             foreach (string source in sourceDirectories)
@@ -721,12 +847,12 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         // particle files if particle manifest is not being generated
                         if (!genparticlemanifest)
-                            if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                            if (f.Name.StartsWith(bspName + "_particles") || f.Name.StartsWith(bspName + "_manifest"))
                                 bsp.particleManifest =
                                     new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
 
                         // soundscript
-                        if (f.Name.StartsWith(name + "_level_sounds"))
+                        if (f.Name.StartsWith(bspName + "_level_sounds"))
                             bsp.soundscript =
                                 new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
                         // presumably language files
