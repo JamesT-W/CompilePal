@@ -201,6 +201,14 @@
     "Warning": ""
   },
   {
+    "Name": "LargeDispSampleRadius",
+    "Parameter": " -LargeDispSampleRadius",
+    "Description": "This can be used if there are splotches of bounced light on terrain.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
     "Name": "LeafAmbientSampleReduction",
     "Parameter": " -LeafAmbientSampleReduction",
     "Description": "Used on Danger Zone maps",
