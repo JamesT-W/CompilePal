@@ -1,0 +1,9 @@
+ -final,
+ -StaticPropLightingOld,
+ -StaticPropPolys,
+ -hdr,
+ -TextureShadows
+ -StaticPropBounce
+ -aoscale
+ -LargeDispSampleRadius
+ -dispchop

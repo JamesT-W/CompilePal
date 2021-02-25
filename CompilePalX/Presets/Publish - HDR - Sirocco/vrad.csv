@@ -1,0 +1,7 @@
+ -final,
+ -StaticPropLightingOld,
+ -StaticPropPolys,
+ -hdr,
+ -TextureShadows
+ -StaticPropBounce
+ -LeafAmbientSampleReduction
