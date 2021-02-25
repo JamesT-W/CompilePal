@@ -199,5 +199,13 @@
     "Value": null,
     "CanHaveValue": true,
     "Warning": ""
+  },
+  {
+    "Name": "LeafAmbientSampleReduction",
+    "Parameter": " -LeafAmbientSampleReduction",
+    "Description": "Used on Danger Zone maps",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
   }
 ]
