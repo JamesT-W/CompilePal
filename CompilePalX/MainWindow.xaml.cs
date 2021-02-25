@@ -644,7 +644,14 @@ namespace CompilePalX
 
             foreach (var file in dialog.FileNames)
             {
-                CompilingManager.MapFiles.Add(new Map(file));
+                if (CompilingManager.MapFiles.Select(y => y.File).Any(y => y == file))
+				{
+                    Console.WriteLine("Map already selected.");
+				}
+                else
+                {
+                    CompilingManager.MapFiles.Add(new Map(file));
+                }
             }
         }
 
