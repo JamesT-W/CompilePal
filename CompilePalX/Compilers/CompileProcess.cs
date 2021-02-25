@@ -108,6 +108,12 @@ namespace CompilePalX
             string parameters = string.Empty;
             foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
             {
+                // if on Windows, set threads to max by default
+                if (parameter.Name.ToLower() == "threads" && Environment.OSVersion.Platform == PlatformID.Win32NT)
+				{
+                    parameter.Value = Environment.ProcessorCount.ToString();
+                }
+
 				parameters += parameter.Parameter;
 
 	            if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))

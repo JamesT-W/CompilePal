@@ -1,5 +1,13 @@
 [
   {
+    "Name": "Threads",
+    "Parameter": " -threads",
+    "Description": "Override the number of CPU threads used.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
     "Name": "Fast",
     "Parameter": " -fast",
     "Description": "Only do a quick first pass. Does not actually test visibility.",
@@ -37,14 +45,6 @@
     "Description": "Write portals to \\\\tmp\\\\<mapname>.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": ""
-  },
-  {
-    "Name": "Threads",
-    "Parameter": " -threads",
-    "Description": "Override the number of CPU threads used.",
-    "Value": null,
-    "CanHaveValue": true,
     "Warning": ""
   },
   {

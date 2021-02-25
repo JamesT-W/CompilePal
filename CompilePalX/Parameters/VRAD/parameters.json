@@ -1,5 +1,13 @@
 [
   {
+    "Name": "Threads",
+    "Parameter": " -threads",
+    "Description": "Override the number of CPU threads used.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
     "Name": "Bounces",
     "Parameter": " -bounce",
     "Description": "Set the maximum number of light ray bounces",
@@ -161,14 +169,6 @@
     "Warning": "CS:GO Only!"
   },
   {
-    "Name": "Threads",
-    "Parameter": " -threads",
-    "Description": "Override the number of CPU threads used.",
-    "Value": null,
-    "CanHaveValue": true,
-    "Warning": ""
-  },
-  {
     "Name": "Low Priority ",
     "Parameter": " -low",
     "Description": "Force VRAD to run as a low-priority process.",
@@ -190,6 +190,14 @@
     "Description": "Turn on verbose output for debug purposes.",
     "Value": null,
     "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Dispchop",
+    "Parameter": " -dispchop",
+    "Description": "Smallest acceptable luxel width of displacement patch face.",
+    "Value": null,
+    "CanHaveValue": true,
     "Warning": ""
   }
 ]

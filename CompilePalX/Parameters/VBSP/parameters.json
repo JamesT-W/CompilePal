@@ -1,5 +1,13 @@
 [
   {
+    "Name": "Threads",
+    "Parameter": " -threads",
+    "Description": "Override the number of CPU threads used.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
     "Name": "Only Entities",
     "Parameter": " -onlyents",
     "Description": "Only import the entities from the VMF. Brushes and internal entities are not modified. Conserves existing lighting data.",
