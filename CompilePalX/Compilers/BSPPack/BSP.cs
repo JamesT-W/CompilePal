@@ -113,8 +113,8 @@ namespace CompilePalX.Compilers.BSPPack
             }
             finally
             {
-                reader.Close();
-                bsp.Close();
+                reader?.Close();
+                bsp?.Close();
             }
         }
 
