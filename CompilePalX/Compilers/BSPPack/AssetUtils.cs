@@ -763,6 +763,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // csgo tablet file workshop (.vtf)
+            var keepSearching = true;
             foreach (string source in sourceDirectories)
             {
                 string externalFolderPath = source + "/" + tabletBaseFolderpath + "/tablet_radar_workshop/";
@@ -780,6 +781,7 @@ namespace CompilePalX.Compilers.BSPPack
                             {
                                 bsp.workshopId = num;
                                 bsp.tabletVtfWorkshop = new KeyValuePair<string, string>(internalPath, externalPath);
+                                keepSearching = false;
                                 break;
                             }
                         }
@@ -787,7 +789,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
                 catch (DirectoryNotFoundException e) { }
 
-                if (bsp.workshopId > 0)
+                if (!keepSearching)
                     break;
             }
 
@@ -810,6 +812,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // csgo spawn select file workshop (.png)
+            keepSearching = true;
             foreach (string source in sourceDirectories)
             {
                 string externalFolderPath = source + "/" + spawnSelectBaseFolderpath + "/map_workshop/";
@@ -827,6 +830,7 @@ namespace CompilePalX.Compilers.BSPPack
                             {
                                 bsp.workshopId = num;
                                 bsp.spawnSelectPngWorkshop = new KeyValuePair<string, string>(internalPath, externalPath);
+                                keepSearching = false;
                                 break;
                             }
                         }
@@ -834,7 +838,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
                 catch (DirectoryNotFoundException e) { }
 
-                if (bsp.workshopId > 0)
+                if (!keepSearching)
                     break;
             }
 
@@ -857,14 +861,14 @@ namespace CompilePalX.Compilers.BSPPack
             // Duplicate the workshop spawn select file to the local spawn select file location if it does not exist
             if (bsp.spawnSelectPngLocal.Equals(default(KeyValuePair<string, string>)) && !bsp.spawnSelectPngWorkshop.Equals(default(KeyValuePair<string, string>)))
             {
-                internalPath = spawnSelectBaseFolderpath + "map_" + bspName + ".vtf";
+                internalPath = spawnSelectBaseFolderpath + "map_" + bspName + ".png";
                 string source = bsp.spawnSelectPngWorkshop.Value.Split(new string[] { "materials/" }, StringSplitOptions.None).FirstOrDefault();
                 string externalPath = source + "/" + internalPath;
                 bsp.spawnSelectPngLocal = new KeyValuePair<string, string>(internalPath, bsp.spawnSelectPngWorkshop.Value);
             }
             else if (bsp.workshopId > 0 && !bsp.spawnSelectPngLocal.Equals(default(KeyValuePair<string, string>)) && bsp.spawnSelectPngWorkshop.Equals(default(KeyValuePair<string, string>))) // Can only be done if the workshop id is known
             {
-                internalPath = spawnSelectBaseFolderpath + $"map_workshop/{bsp.workshopId}/" + bspName + ".vtf";
+                internalPath = spawnSelectBaseFolderpath + $"map_workshop/{bsp.workshopId}/" + bspName + ".png";
                 string source = bsp.spawnSelectPngLocal.Value.Split(new string[] { "materials/" }, StringSplitOptions.None).FirstOrDefault();
                 string externalPath = source + "/" + internalPath;
                 bsp.spawnSelectPngWorkshop = new KeyValuePair<string, string>(internalPath, bsp.spawnSelectPngLocal.Value);
