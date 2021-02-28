@@ -382,6 +382,7 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.radartxt.Key != default(string) ? "\n-radar files" : "") +
                     (map.txt.Key != default(string) ? "\n-loading screen text" : "") +
                     (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
+                    (map.story.Key != default(string) ? "\n-story file" : "") +
                     (map.cameras.Key != default(string) ? "\n-cameras file" : "") +
                     (map.retake.Key != default(string) ? "\n-retake file" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "") +

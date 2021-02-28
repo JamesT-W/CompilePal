@@ -41,6 +41,7 @@ namespace CompilePalX.Compilers.BSPPack
         public KeyValuePair<string, string> kv { get; set; }
         public KeyValuePair<string, string> txt { get; set; }
         public KeyValuePair<string, string> jpg { get; set; }
+        public KeyValuePair<string, string> story { get; set; }
         public KeyValuePair<string, string> cameras { get; set; }
         public KeyValuePair<string, string> retake { get; set; }
         public KeyValuePair<string, string> radartxt { get; set; }

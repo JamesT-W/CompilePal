@@ -692,6 +692,19 @@ namespace CompilePalX.Compilers.BSPPack
                         bsp.jpg = new KeyValuePair<string, string>(internalPath + ".jpg", externalPath + extension);
             }
 
+            // csgo story file (.txt)
+            internalPath = "maps/" + bspName + "_story.txt";
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.story = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
+            }
+
             // csgo cameras file (.txt)
             internalPath = "maps/" + bspName + "_cameras.txt";
             foreach (string source in sourceDirectories)
