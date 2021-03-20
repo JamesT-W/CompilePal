@@ -155,8 +155,8 @@ namespace CompilePalX
 
                         compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
-                        //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
-                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        //Portal 2 cannot work with leaks, and CS:GO shouldn't, stop compiling if we do get a leak.
+                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2" || GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
                         {
                             if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
                             {
