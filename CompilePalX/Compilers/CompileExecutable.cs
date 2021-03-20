@@ -54,7 +54,9 @@ namespace CompilePalX.Compilers
                 CompilePalLogger.LogCompileError($"Failed to run executable: {Process.StartInfo.FileName}\n", new Error($"Failed to run executable: {Process.StartInfo.FileName}", ErrorSeverity.FatalError));
                 return;
             }
-            Process.PriorityClass = ProcessPriorityClass.BelowNormal;
+
+            if (Process != null && !Process.HasExited)
+                Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             if (Metadata.ReadOutput)
                 readOutput();
