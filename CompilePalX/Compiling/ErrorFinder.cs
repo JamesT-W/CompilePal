@@ -98,6 +98,35 @@ namespace CompilePalX
                 errorList.Add(error);
                 id++;
             }
+
+            AddOtherErrors(id);
+        }
+
+        // Adds errors that are not mentioned in the interlopers txt
+        static void AddOtherErrors(int id)
+		{
+            AddInstanceFileError(id);
+            id++;
+        }
+
+        static void AddInstanceFileError(int id)
+		{
+            Error error = new Error();
+
+            var data = "Could not open instance file";
+
+            error.Severity = (int)ErrorSeverity.FatalError;
+            error.RegexTrigger = new Regex(@"Could\s+not\s+open\s+instance\s+file\s+");
+
+            error.ShortDescription = data;
+
+            error.Message = data;
+
+            //CompilePalLogger.LogLineColor("Loaded trigger regex: {0}",error.ErrorColor,data[1]);
+
+
+            error.ID = id;
+            errorList.Add(error);
         }
 
         public static Error GetError(string line)
