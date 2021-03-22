@@ -155,8 +155,8 @@ namespace CompilePalX
 
                         compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
-                        //Portal 2 cannot work with leaks, and CS:GO shouldn't, stop compiling if we do get a leak.
-                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2" || GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
+                        //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
+                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
                         {
                             if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
                             {
@@ -164,6 +164,16 @@ namespace CompilePalX
                                 break;
                             }
                         }
+                        else if (GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
+						{
+                            if (currentCompileProcess.Name == "VBSP" && 
+                                (currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == ErrorFinder.instanceErrorMessage) ||
+                                currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == "**** leaked ****")))
+							{
+                                //either a leak or instance not found error has occurred -> stop compiling;
+                                break;
+                            }
+						}
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
                             c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;

@@ -20,6 +20,8 @@ namespace CompilePalX
         //interlopers list of errors
         private static string errorURL = "https://www.interlopers.net/includes/errorpage/errorChecker.txt";
 
+        public static string instanceErrorMessage = "Could not open instance file";
+
         private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
 
         private static string errorStyle = Path.Combine("./Compiling", "errorstyle.html");
@@ -113,14 +115,12 @@ namespace CompilePalX
 		{
             Error error = new Error();
 
-            var data = "Could not open instance file";
-
             error.Severity = (int)ErrorSeverity.FatalError;
             error.RegexTrigger = new Regex(@"Could\s+not\s+open\s+instance\s+file\s+");
 
-            error.ShortDescription = data;
+            error.ShortDescription = instanceErrorMessage;
 
-            error.Message = data;
+            error.Message = instanceErrorMessage;
 
             //CompilePalLogger.LogLineColor("Loaded trigger regex: {0}",error.ErrorColor,data[1]);
 
