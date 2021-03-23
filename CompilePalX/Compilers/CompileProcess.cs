@@ -100,14 +100,12 @@ namespace CompilePalX
         }
 
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
-        public ObservableDictionary<string, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>();
-        public ObservableDictionary<string, ObservableCollection<ConfigItem>> PresetMapDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>();
 
 
         public string GetParameterString()
         {
             string parameters = string.Empty;
-            foreach (var parameter in PresetMapDictionary[ConfigurationManager.CurrentPresetMap])
+            foreach (var parameter in ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap][Name])
             {
                 // if on Windows, set threads to max available in the system by default, if not already set to a value
                 if (parameter.Name.ToLower() == "threads" && string.IsNullOrWhiteSpace(parameter.Value) && Environment.OSVersion.Platform == PlatformID.Win32NT)

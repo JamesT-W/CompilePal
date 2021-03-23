@@ -176,11 +176,11 @@ namespace CompilePalX
 						}
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
-                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPresetMap))) / MapFiles.Count;
+                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name))) / MapFiles.Count;
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
-                    
+
                     GameConfigurationManager.RestoreCurrentContext();
                 }
 

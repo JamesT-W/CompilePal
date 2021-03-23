@@ -63,7 +63,7 @@
                     <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="White">
                         <Button x:Name="RemovePresetMapButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetMapButton_Click" DockPanel.Dock="Bottom"/>
 						<Button x:Name="ClonePresetMapButton" Content="Clone..." Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetMapButton_OnClick" DockPanel.Dock="Bottom"/>
-                        <Button x:Name="AddPresetButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
+                        <Button x:Name="AddPresetMapButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetMapButton_Click" DockPanel.Dock="Bottom"/>
                         <ListBox Name="PresetMapConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetMapConfigListBox_SelectionChanged" />
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">

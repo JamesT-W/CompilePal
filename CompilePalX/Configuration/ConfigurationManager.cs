@@ -22,6 +22,9 @@ namespace CompilePalX
         public static ObservableCollection<string> KnownPresets = new ObservableCollection<string>();
         public static ObservableCollection<string> KnownPresetsMaps = new ObservableCollection<string>();
 
+        public static ObservableDictionary<string, ObservableDictionary<string, ObservableCollection<ConfigItem>>> PresetDictionary = new ObservableDictionary<string, ObservableDictionary<string, ObservableCollection<ConfigItem>>>();
+        public static ObservableDictionary<string, ObservableDictionary<string, ObservableCollection<ConfigItem>>> PresetMapDictionary = new ObservableDictionary<string, ObservableDictionary<string, ObservableCollection<ConfigItem>>>();
+
         public static string CurrentPreset = "Fast";
         public static string CurrentPresetMap = string.Empty;
 
@@ -91,24 +94,22 @@ namespace CompilePalX
             //clear old lists
             KnownPresets.Clear();
 
-            foreach (var process in CompileProcesses)
-            {
-                process.PresetDictionary.Clear();
-            }
+            PresetDictionary.Clear();
 
             foreach (string presetPath in presets)
             {
                 string preset = Path.GetFileName(presetPath);
                 foreach (var process in CompileProcesses)
                 {
-
-
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
                     {
-                        process.PresetDictionary.Add(preset, new ObservableCollection<ConfigItem>());
-                        //read the list of preset parameters
-                        var lines = File.ReadAllLines(file);
+						var processDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>
+						{
+							{ process.Name, new ObservableCollection<ConfigItem>() }
+						};
+						//read the list of preset parameters
+						var lines = File.ReadAllLines(file);
 
                         foreach (var line in lines)
                         {
@@ -129,8 +130,18 @@ namespace CompilePalX
 		                            equivalentItem.Warning = item.Warning;
 	                            }
 
-                                process.PresetDictionary[preset].Add(equivalentItem);
+                                processDictionary[process.Name].Add(equivalentItem);
                             }
+                        }
+
+                        if (PresetDictionary.ContainsKey(preset))
+                        {
+                            foreach (var p in processDictionary)
+                                PresetDictionary[preset].Add(p.Key, p.Value);
+                        }
+                        else
+                        {
+                            PresetDictionary.Add(preset, processDictionary);
                         }
                     }
                 }
@@ -151,22 +162,20 @@ namespace CompilePalX
             //clear old lists
             KnownPresetsMaps.Clear();
 
-            foreach (var process in CompileProcesses)
-            {
-                process.PresetMapDictionary.Clear();
-            }
+            PresetMapDictionary.Clear();
 
             foreach (string presetPath in presets)
             {
                 string preset = Path.GetFileName(presetPath);
                 foreach (var process in CompileProcesses)
                 {
-
-
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
                     {
-                        process.PresetMapDictionary.Add(preset, new ObservableCollection<ConfigItem>());
+                        var processDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>
+                        {
+                            { process.Name, new ObservableCollection<ConfigItem>() }
+                        };
                         //read the list of preset map parameters
                         var lines = File.ReadAllLines(file);
 
@@ -189,8 +198,18 @@ namespace CompilePalX
 		                            equivalentItem.Warning = item.Warning;
 	                            }
 
-                                process.PresetMapDictionary[preset].Add(equivalentItem);
+                                processDictionary[process.Name].Add(equivalentItem);
                             }
+                        }
+
+                        if (PresetMapDictionary.ContainsKey(preset))
+                        {
+                            foreach (var p in processDictionary)
+                                PresetMapDictionary[preset].Add(p.Key, p.Value);
+                        }
+                        else
+                        {
+                            PresetMapDictionary.Add(preset, processDictionary);
                         }
                     }
                 }
@@ -208,10 +227,10 @@ namespace CompilePalX
 
                 foreach (var compileProcess in CompileProcesses)
                 {
-                    if (compileProcess.PresetDictionary.ContainsKey(knownPreset))
+                    if (PresetDictionary[knownPreset].ContainsKey(compileProcess.Name))
                     {
                         var lines = new List<string>();
-                        foreach (var item in compileProcess.PresetDictionary[knownPreset])
+                        foreach (var item in PresetDictionary[knownPreset][compileProcess.Name])
                         {
                             string line = WritePresetLine(item);
                             lines.Add(line);
@@ -233,10 +252,10 @@ namespace CompilePalX
 
                 foreach (var compileProcess in CompileProcesses)
                 {
-                    if (compileProcess.PresetMapDictionary.ContainsKey(knownPreset))
+                    if (PresetMapDictionary[knownPreset].ContainsKey(compileProcess.Name))
                     {
                         var lines = new List<string>();
-                        foreach (var item in compileProcess.PresetMapDictionary[knownPreset])
+                        foreach (var item in PresetMapDictionary[knownPreset][compileProcess.Name])
                         {
                             string line = WritePresetLine(item);
                             lines.Add(line);
@@ -260,24 +279,37 @@ namespace CompilePalX
             }
         }
 
-        public static void NewPresetMap(string name)
+        public static void NewPresetMap(string name, ConfigItem chosenItem)
         {
-            string[] defaultProcesses = new string[] { "VBSP", "VVIS", "VRAD", "COPY", "GAME" };
-            string folder = Path.Combine(PresetsMapsFolder, name);
+            string presetName = chosenItem.Name;
+            string folderUnchecked = Path.Combine(PresetsMapsFolder, name);
+
+            var increment = 1;
+            string folder = folderUnchecked;
+            while (Directory.Exists(folder))
+			{
+                folder = string.Concat(folderUnchecked, $"({increment})");
+			}
+
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
 
-                foreach (var process in CompileProcesses)
+                var preset = PresetDictionary.FirstOrDefault(x => x.Key == presetName);
+                if (preset.Key != null && preset.Value != null)
                 {
-                    if (defaultProcesses.Contains(process.Metadata.Name))
+                    var processes = preset.Value;
+                    foreach (var process in processes)
                     {
-                        string path = Path.ChangeExtension(Path.Combine(folder, process.Metadata.Name), "csv");
-                        File.Create(path).Close();
+                        if (process.Key != null)
+                        {
+                            string path = Path.ChangeExtension(Path.Combine(folder, process.Key), "csv");
+                            string presetPath = Path.ChangeExtension(Path.Combine(PresetsFolder, preset.Key, process.Key), "csv");
+                            File.Copy(presetPath, path);
+                        }
                     }
                 }
             }
-
 
             AssembleParameters();
         }

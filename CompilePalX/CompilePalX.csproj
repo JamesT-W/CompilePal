@@ -78,6 +78,9 @@
     </Compile>
     <Compile Include="Compiling\Logger.cs" />
     <Compile Include="Compiling\OrderManager.cs" />
+    <Compile Include="Configuration\PresetAdder.xaml.cs">
+      <DependentUpon>PresetAdder.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Configuration\ProcessAdder.xaml.cs">
       <DependentUpon>ProcessAdder.xaml</DependentUpon>
     </Compile>
@@ -107,6 +110,10 @@
     <Page Include="Compiling\ErrorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Configuration\PresetAdder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Configuration\ProcessAdder.xaml">
       <Generator>MSBuild:Compile</Generator>
