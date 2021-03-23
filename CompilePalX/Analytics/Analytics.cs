@@ -87,18 +87,18 @@ namespace CompilePalX
                 Analytics.Client.Track(anonymousUserID, "Compile", userProperties, options);
             }
         }
-        public static void NewPreset()
+        public static void NewPresetMap()
         {
             if (enabled)
             {
-                Analytics.Client.Track(anonymousUserID, "NewPreset", userProperties, options);
+                Analytics.Client.Track(anonymousUserID, "NewPresetMap", userProperties, options);
             }
         }
-        public static void ModifyPreset()
+        public static void ModifyPresetMap()
         {
             if (enabled)
             {
-                Analytics.Client.Track(anonymousUserID, "ModifyPreset", userProperties, options);
+                Analytics.Client.Track(anonymousUserID, "ModifyPresetMap", userProperties, options);
             }
         }
         public static void Error()

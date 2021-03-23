@@ -27,13 +27,13 @@ namespace CompilePalX.Configuration
 
 		public static void UpdateOrder()
 		{
-			if (ConfigurationManager.CurrentPreset == null)
+			if (ConfigurationManager.CurrentPresetMap == null)
 				return;
 
 			//Get all default processes for config
 			var defaultProcs = new List<CompileProcess>(ConfigurationManager.CompileProcesses
 				.Where(c => c.Metadata.DoRun
-					        && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)
+					        && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPresetMap)
 					        && c.Name != "ORDER"
 					        && c.Name != "CUSTOM"
 				).ToList());
@@ -41,7 +41,7 @@ namespace CompilePalX.Configuration
 			//Get custom process
 			var customProcess = (CustomProcess) ConfigurationManager.CompileProcesses
 				.FirstOrDefault(c => c.Metadata.DoRun
-					                    && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)
+					                    && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPresetMap)
 					                    && c.Name == "CUSTOM"
 				);
 

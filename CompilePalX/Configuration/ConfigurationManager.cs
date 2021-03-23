@@ -20,11 +20,14 @@ namespace CompilePalX
     {
         public static ObservableCollection<CompileProcess> CompileProcesses = new ObservableCollection<CompileProcess>();
         public static ObservableCollection<string> KnownPresets = new ObservableCollection<string>();
+        public static ObservableCollection<string> KnownPresetsMaps = new ObservableCollection<string>();
 
         public static string CurrentPreset = "Fast";
+        public static string CurrentPresetMap = string.Empty;
 
         private static readonly string ParametersFolder = "./Parameters";
         private static readonly string PresetsFolder = "./Presets";
+        private static readonly string PresetsMapsFolder = "./PresetsMaps";
         
 
         public static void AssembleParameters()
@@ -74,6 +77,7 @@ namespace CompilePalX
             CompileProcesses = new ObservableCollection<CompileProcess>(CompileProcesses.OrderBy(c => c.Metadata.Order));
 
             AssemblePresets();
+            AssemblePresetsMaps();
         }
 
         private static void AssemblePresets()
@@ -124,7 +128,6 @@ namespace CompilePalX
 									equivalentItem.WaitForExit= item.WaitForExit;
 		                            equivalentItem.Warning = item.Warning;
 	                            }
-	                            
 
                                 process.PresetDictionary[preset].Add(equivalentItem);
                             }
@@ -134,7 +137,66 @@ namespace CompilePalX
                 CompilePalLogger.LogLine("Added preset {0} for processes {1}", preset, string.Join(", ", CompileProcesses));
                 CurrentPreset = preset;
                 KnownPresets.Add(preset);
+            }
+        }
 
+        private static void AssemblePresetsMaps()
+        {
+            if (!Directory.Exists(PresetsMapsFolder))
+                Directory.CreateDirectory(PresetsMapsFolder);
+
+            //get a list of presets from the directories in the preset folder
+            var presets = Directory.GetDirectories(PresetsMapsFolder);
+
+            //clear old lists
+            KnownPresetsMaps.Clear();
+
+            foreach (var process in CompileProcesses)
+            {
+                process.PresetMapDictionary.Clear();
+            }
+
+            foreach (string presetPath in presets)
+            {
+                string preset = Path.GetFileName(presetPath);
+                foreach (var process in CompileProcesses)
+                {
+
+
+                    string file = Path.Combine(presetPath, process.PresetFile);
+                    if (File.Exists(file))
+                    {
+                        process.PresetMapDictionary.Add(preset, new ObservableCollection<ConfigItem>());
+                        //read the list of preset map parameters
+                        var lines = File.ReadAllLines(file);
+
+                        foreach (var line in lines)
+                        {
+	                        var item = ParsePresetLine(line);
+
+                            if (process.ParameterList.Any(c => c.Parameter == item.Parameter))
+                            {
+                                //remove .clone if you are a masochist and wish to enter the object oriented version of hell
+                                var equivalentItem = (ConfigItem)process.ParameterList.FirstOrDefault(c => c.Parameter == item.Parameter).Clone();
+
+                                equivalentItem.Value = item.Value;
+
+								//Copy extra information stored for custom programs
+	                            if (item.Parameter == "program")
+	                            {
+									equivalentItem.Value2 = item.Value2;
+									equivalentItem.WaitForExit= item.WaitForExit;
+		                            equivalentItem.Warning = item.Warning;
+	                            }
+
+                                process.PresetMapDictionary[preset].Add(equivalentItem);
+                            }
+                        }
+                    }
+                }
+                CompilePalLogger.LogLine("Added preset map {0} for processes {1}", preset, string.Join(", ", CompileProcesses));
+                CurrentPresetMap = preset;
+                KnownPresetsMaps.Add(preset);
             }
         }
 
@@ -163,6 +225,31 @@ namespace CompilePalX
             }
         }
 
+        public static void SavePresetsMaps()
+        {
+            foreach (var knownPreset in KnownPresetsMaps)
+            {
+                string presetMapFolder = Path.Combine(PresetsMapsFolder, knownPreset);
+
+                foreach (var compileProcess in CompileProcesses)
+                {
+                    if (compileProcess.PresetMapDictionary.ContainsKey(knownPreset))
+                    {
+                        var lines = new List<string>();
+                        foreach (var item in compileProcess.PresetMapDictionary[knownPreset])
+                        {
+                            string line = WritePresetLine(item);
+                            lines.Add(line);
+                        }
+
+                        string presetMapPath = Path.Combine(presetMapFolder, compileProcess.PresetFile);
+
+                        File.WriteAllLines(presetMapPath, lines);
+                    }
+                }
+            }
+        }
+
         public static void SaveProcesses()
         {
             foreach (var process in CompileProcesses)
@@ -173,10 +260,10 @@ namespace CompilePalX
             }
         }
 
-        public static void NewPreset(string name)
+        public static void NewPresetMap(string name)
         {
             string[] defaultProcesses = new string[] { "VBSP", "VVIS", "VRAD", "COPY", "GAME" };
-            string folder = Path.Combine(PresetsFolder, name);
+            string folder = Path.Combine(PresetsMapsFolder, name);
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
@@ -194,42 +281,40 @@ namespace CompilePalX
 
             AssembleParameters();
         }
-        public static void ClonePreset(string name)
+
+        public static void ClonePresetMap(string name)
         {
-            string newFolder = Path.Combine(PresetsFolder, name);
-            string oldFolder = Path.Combine(PresetsFolder, CurrentPreset);
+            string newFolder = Path.Combine(PresetsMapsFolder, name);
+            string oldFolder = Path.Combine(PresetsMapsFolder, CurrentPresetMap);
             if (!Directory.Exists(newFolder))
             {
-                SavePresets();
+                SavePresetsMaps();
 
                 DirectoryCopy(oldFolder, newFolder, true);
 
                 AssembleParameters();
             }
-
-
         }
 
-        public static void RemovePreset(string name)
+        public static void RemovePresetMap(string name)
         {
-            string folder = Path.Combine(PresetsFolder, name);
+            string folder = Path.Combine(PresetsMapsFolder, name);
             if (Directory.Exists(folder))
             {
                 Directory.Delete(folder, true);
             }
 
-
             AssembleParameters();
         }
+
         public static void RemoveProcess(string name)
         {
-            string presetPath = Path.Combine(PresetsFolder, CurrentPreset, name.ToLower() + ".csv");
+            string presetPath = Path.Combine(PresetsMapsFolder, CurrentPresetMap, name.ToLower() + ".csv");
             if (File.Exists(presetPath))
             {
                 File.Delete(presetPath);
             }
         }
-
 
         public static ObservableCollection<ConfigItem> GetParameters(string processName, bool doRun = false)
         {

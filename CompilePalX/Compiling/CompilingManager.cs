@@ -113,7 +113,7 @@ namespace CompilePalX
 
             OnClear();
 
-            CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
+            CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPresetMap}' compile.");
 
             compileThread = new Thread(CompileThreaded);
             compileThread.Start();
@@ -176,7 +176,7 @@ namespace CompilePalX
 						}
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
-                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
+                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPresetMap))) / MapFiles.Count;
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
@@ -192,7 +192,7 @@ namespace CompilePalX
         private static void postCompile(List<MapErrors> errors)
         {
             CompilePalLogger.LogLineColor(
-	            $"\n'{ConfigurationManager.CurrentPreset}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"\n'{ConfigurationManager.CurrentPresetMap}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {
