@@ -34,9 +34,17 @@ namespace CompilePalX
             set { file = value; OnPropertyChanged(nameof(File));  }
         }
 
-        public Map(string file)
+        private bool compile;
+        public bool Compile
+        {
+            get => compile;
+            set { compile = value; OnPropertyChanged(nameof(Compile)); }
+        }
+
+        public Map(string file, bool compile = true)
         {
             File = file;
+            Compile = compile;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -122,51 +130,58 @@ namespace CompilePalX
                 var mapErrors = new List<MapErrors>();
 
 
-                Map map = MapFiles[ConfigurationManager.CurrentPresetMap];
-
-                string mapFile = map.File; 
-                string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
-
-                var compileErrors = new List<Error>();
-                CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
-
-				//Update the grid so we have the most up to date order
-	            OrderManager.UpdateOrder();
-
-                GameConfigurationManager.BackupCurrentContext();
-				foreach (var compileProcess in OrderManager.CurrentOrder)
-				{
-                    currentCompileProcess = compileProcess;
-                    compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
-
-                    compileErrors.AddRange(currentCompileProcess.CompileErrors);
-
-                    //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
-                    if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                foreach (Map map in MapFiles.Values)
+                {
+                    if (map == null || !map.Compile)
                     {
-                        if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
-                        {
-                            //we have a VBSP error, aka a leak -> stop compiling;
-                            break;
-                        }
+                        CompilePalLogger.LogDebug($"Skipping {MapFiles.Where(x => x.Value == map).Select(x => x.Key).FirstOrDefault()}");
+                        continue;
                     }
-                    else if (GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
-					{
-                        if (currentCompileProcess.Name == "VBSP" && 
-                            (currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == ErrorFinder.instanceErrorMessage) ||
-                            currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == "**** leaked ****")))
-						{
-                            //either a leak or instance not found error has occurred -> stop compiling;
-                            break;
-                        }
-					}
 
-                    ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
-                        ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name))
-                    );
+                    string mapFile = map.File;
+                    string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
+
+                    var compileErrors = new List<Error>();
+                    CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
+
+                    //Update the grid so we have the most up to date order
+                    OrderManager.UpdateOrder();
+
+                    GameConfigurationManager.BackupCurrentContext();
+                    foreach (var compileProcess in OrderManager.CurrentOrder)
+                    {
+                        currentCompileProcess = compileProcess;
+                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
+
+                        compileErrors.AddRange(currentCompileProcess.CompileErrors);
+
+                        //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
+                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        {
+                            if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
+                            {
+                                //we have a VBSP error, aka a leak -> stop compiling;
+                                break;
+                            }
+                        }
+                        else if (GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
+                        {
+                            if (currentCompileProcess.Name == "VBSP" &&
+                                (currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == ErrorFinder.instanceErrorMessage) ||
+                                currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == "**** leaked ****")))
+                            {
+                                //either a leak or instance not found error has occurred -> stop compiling;
+                                break;
+                            }
+                        }
+
+                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
+                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name))
+                        );
+                    }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
-
+                    
                     GameConfigurationManager.RestoreCurrentContext();
                 }
 

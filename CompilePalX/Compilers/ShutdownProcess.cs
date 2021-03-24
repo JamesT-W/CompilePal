@@ -13,9 +13,12 @@ namespace CompilePalX.Compilers
         {
             CompileErrors = new List<Error>();
 
+
+            /**** TODO: NEEDS UNCOMMENTING AND TWEAKING WHEN MULTIPLE MAP PRESETS CAN BE SELECTED FOR COMPILING AT ONCE ****/
+
             // don't run unless it's the last map of the queue
-            if (CompilingManager.MapFiles.Last().File == context.MapFile)
-            {
+            /*if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File == context.MapFile)
+            {*/
                 CompilePalLogger.LogLine("\nCompilePal - Shutdown");
                 CompilePalLogger.LogLine("The system will shutdown soon.");
                 CompilePalLogger.LogLine("You can cancel this shutdown by using the command \"shutdown -a\"");
@@ -26,7 +29,7 @@ namespace CompilePalX.Compilers
 
                 Process = new Process { StartInfo = startInfo };
                 Process.Start();
-            }
+            //}
         }
     }
 }

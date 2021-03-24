@@ -27,6 +27,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.TextFormatting;
 using CompilePalX.Compilers;
 using CompilePalX.Configuration;
+using System.Globalization;
+using CompilePalX.Annotations;
+using System.Runtime.CompilerServices;
 
 namespace CompilePalX
 {
@@ -74,7 +77,11 @@ namespace CompilePalX
             CompileProcessesListBox.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Ordering", System.ComponentModel.ListSortDirection.Ascending));
 
             CompileProcessesListBox.SelectedIndex = 0;
-            PresetMapConfigListBox.SelectedIndex = 0;
+
+            /**** TODO: auto select the first Map Preset ****/
+
+            /*PresetMapConfigListBox.SelectedIndex = 0;
+            previousPresetMapSelectedItem = PresetMapConfigListBox.SelectedIndex;*/
 
             UpdateConfigGrid();
 
@@ -98,7 +105,17 @@ namespace CompilePalX
             HandleArgs();
         }
 
-		public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
+
+        private object previousPresetMapSelectedItem = null;
+        private void SetPreviousPresetMapSelectedItem(object selectedItem)
+        {
+            if (selectedItem == null)
+                return;
+
+            previousPresetMapSelectedItem = selectedItem;
+        }
+
+        public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
 		{
 			return this.Dispatcher.Invoke(() => this.ShowMessageAsync(title, message, style, settings));
 		}
@@ -235,23 +252,31 @@ namespace CompilePalX
             ExceptionHandler.LogException(e.Exception);
         }
 
-
         void SetSources()
         {
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
-            PresetMapConfigListBox.ItemsSource = ConfigurationManager.KnownPresetsMaps;
 
-            if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap))
+            if (ConfigurationManager.CurrentPresetMap != null && (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)))
                 CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, null);
+
+            var presetMapItemSources = new List<PresetMapCheckbox>();
+            foreach (var presetMap in ConfigurationManager.KnownPresetsMaps)
+			{
+                var map = CompilingManager.MapFiles[presetMap];
+                var file = map == null ? string.Empty : map.File;
+                var compile = map == null ? false : map.Compile;
+                presetMapItemSources.Add(new PresetMapCheckbox(presetMap, file, compile));
+			}
+            PresetMapConfigListBox.ItemsSource = presetMapItemSources;
 
             MapListBox.ItemsSource = CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
 			OrderManager.Init();
 	        OrderManager.UpdateOrder();
 
-			
-			//BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
-		}
+
+            //BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
+        }
 
         void ProgressManager_ProgressChange(double progress)
         {
@@ -325,7 +350,7 @@ namespace CompilePalX
             ClonePresetMapButton.IsEnabled = true;
             PresetMapConfigListBox.IsEnabled = true;
 
-            if (CompilingManager.MapFiles.Any() && (CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null))
+            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
             {
                 SelectMapButton.IsEnabled = false;
                 ClearMapButton.IsEnabled = true;
@@ -427,7 +452,7 @@ namespace CompilePalX
 
 			if (processModeEnabled)
 				OrderManager.UpdateOrder();
-		}
+        }
 
         private void RemoveProcessButton_Click(object sender, RoutedEventArgs e)
         {
@@ -463,6 +488,7 @@ namespace CompilePalX
                 SetSources();
                 CompileProcessesListBox.SelectedIndex = 0;
                 PresetMapConfigListBox.SelectedItem = presetName;
+                SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
             }
         }
 
@@ -484,20 +510,23 @@ namespace CompilePalX
                     SetSources();
                     CompileProcessesListBox.SelectedIndex = 0;
                     PresetMapConfigListBox.SelectedItem = presetName;
+                    SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
                 }
             }
         }
 
         private void RemovePresetMapButton_Click(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (string)PresetMapConfigListBox.SelectedItem;
+            var selectedItem = (string)PresetMapConfigListBox.SelectedItem != null ? (string)PresetMapConfigListBox.SelectedItem : previousPresetMapSelectedItem;
 
             if (selectedItem != null)
-                ConfigurationManager.RemovePresetMap(selectedItem);
+                ConfigurationManager.RemovePresetMap(((PresetMapCheckbox)selectedItem).PresetMap);
 
             SetSources();
             CompileProcessesListBox.SelectedIndex = 0;
             PresetMapConfigListBox.SelectedIndex = 0;
+
+            SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -529,7 +558,32 @@ namespace CompilePalX
 				OrderManager.UpdateOrder();
 
             SetSources();
-		}
+
+            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
+            {
+                SelectMapButton.IsEnabled = false;
+                ClearMapButton.IsEnabled = true;
+            }
+            else
+            {
+                SelectMapButton.IsEnabled = true;
+                ClearMapButton.IsEnabled = false;
+            }
+
+            SetPreviousPresetMapSelectedItem(((ListBox)e.Source).Items.CurrentItem);
+        }
+
+        private void Compile_OnClick(object sender, RoutedEventArgs e)
+        {
+            var presetMap = ((PresetMapCheckbox)((CheckBox)e.Source).DataContext).PresetMap;
+            
+            if (!CompilingManager.MapFiles.ContainsKey(presetMap) || CompilingManager.MapFiles[presetMap] == null)
+                return;
+
+            CompilingManager.MapFiles[presetMap].Compile = (bool)((CheckBox)e.Source).IsChecked;
+
+            PersistenceManager.ForceMapFilesWrite();
+        }
 
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -541,7 +595,7 @@ namespace CompilePalX
 
         private void UpdateConfigGrid()
         {
-            ConfigurationManager.CurrentPresetMap = (string)PresetMapConfigListBox.SelectedItem ?? ConfigurationManager.CurrentPresetMap;
+            ConfigurationManager.CurrentPresetMap = PresetMapConfigListBox.SelectedItem == null ? ConfigurationManager.CurrentPresetMap : (string)((PresetMapCheckbox)PresetMapConfigListBox.SelectedItem).PresetMap;
 
             selectedProcess = (CompileProcess)CompileProcessesListBox.SelectedItem;
 
@@ -648,7 +702,7 @@ namespace CompilePalX
         private void SelectMapButton_Click(object sender, RoutedEventArgs e)
         {
             // do not allow more than one map file for each map preset
-            if (CompilingManager.MapFiles.Any() && (CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null))
+            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
                 return;
 
             var dialog = new OpenFileDialog();
@@ -687,10 +741,10 @@ namespace CompilePalX
         private void ClearMapButton_Click(object sender, RoutedEventArgs e)
         {
             // do not allow more than one map file for each map preset
-            if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || (CompilingManager.MapFiles.ContainsKey(ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null))
+            if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null)
                 return;
 
-            CompilingManager.MapFiles.Remove(ConfigurationManager.CurrentPresetMap);
+            CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] = null;
 
             SelectMapButton.IsEnabled = true;
             ClearMapButton.IsEnabled = false;
@@ -873,5 +927,52 @@ namespace CompilePalX
 
 			return collection;
 		}
-	}
+    }
+
+    public class PresetMapCheckbox : INotifyPropertyChanged
+    {
+        public string PresetMap
+        {
+            get; set;
+        }
+
+        private string file;
+        public string File
+        {
+            get => file;
+            set { file = value; OnPropertyChanged(nameof(File)); }
+        }
+
+        private bool compile;
+        public bool Compile
+        {
+            get => compile;
+            set { compile = value; OnPropertyChanged(nameof(Compile)); }
+        }
+
+        public bool Enabled
+        {
+            get { return !string.IsNullOrWhiteSpace(File); }
+        }
+
+        public Visibility Visible
+        {
+            get { return string.IsNullOrWhiteSpace(File) ? Visibility.Hidden : Visibility.Visible; }
+        }
+
+        public PresetMapCheckbox(string presetMap, string file, bool compile)
+        {
+            PresetMap = presetMap;
+            File = file;
+            Compile = compile;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
 }

@@ -46,8 +46,18 @@ namespace CompilePalX
             CompilingManager.MapFiles.CollectionChanged +=
                 delegate
                 {
-                    File.WriteAllText(mapFiles, JsonConvert.SerializeObject(CompilingManager.MapFiles,Formatting.Indented));
+                    WriteMapFiles();
                 };
+        }
+
+        public static void ForceMapFilesWrite()
+		{
+            WriteMapFiles();
+        }
+
+        private static void WriteMapFiles()
+        {
+            File.WriteAllText(mapFiles, JsonConvert.SerializeObject(CompilingManager.MapFiles, Formatting.Indented));
         }
     }
 }
