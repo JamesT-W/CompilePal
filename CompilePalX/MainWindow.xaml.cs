@@ -135,7 +135,7 @@ namespace CompilePalX
                         if (File.Exists(argPath))
                         {
                             if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
-                                CompilingManager.MapFiles.Add(new Map(argPath));
+                                CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] = new Map(argPath);
                         }
                     }
 
@@ -241,7 +241,10 @@ namespace CompilePalX
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
             PresetMapConfigListBox.ItemsSource = ConfigurationManager.KnownPresetsMaps;
 
-            MapListBox.ItemsSource = CompilingManager.MapFiles;
+            if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap))
+                CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, null);
+
+            MapListBox.ItemsSource = CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
 			OrderManager.Init();
 	        OrderManager.UpdateOrder();
@@ -291,8 +294,8 @@ namespace CompilePalX
             ClonePresetMapButton.IsEnabled = false;
             PresetMapConfigListBox.IsEnabled = false;
 
-            AddMapButton.IsEnabled = false;
-            RemoveMapButton.IsEnabled = false;
+            SelectMapButton.IsEnabled = false;
+            ClearMapButton.IsEnabled = false;
 
             // hide update link so elapsed time can be shown
             UpdateLabel.Visibility = Visibility.Collapsed;
@@ -322,8 +325,16 @@ namespace CompilePalX
             ClonePresetMapButton.IsEnabled = true;
             PresetMapConfigListBox.IsEnabled = true;
 
-            AddMapButton.IsEnabled = true;
-            RemoveMapButton.IsEnabled = true;
+            if (CompilingManager.MapFiles.Any() && (CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null))
+            {
+                SelectMapButton.IsEnabled = false;
+                ClearMapButton.IsEnabled = true;
+            }
+            else
+            {
+                SelectMapButton.IsEnabled = true;
+                ClearMapButton.IsEnabled = false;
+            }
 
             TimeElapsedLabel.Visibility = Visibility.Collapsed;
             elapsedTimeDispatcherTimer.IsEnabled = false;
@@ -516,7 +527,10 @@ namespace CompilePalX
 
 			if (processModeEnabled)
 				OrderManager.UpdateOrder();
+
+            SetSources();
 		}
+
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateConfigGrid();
@@ -527,11 +541,14 @@ namespace CompilePalX
 
         private void UpdateConfigGrid()
         {
-            ConfigurationManager.CurrentPresetMap = (string)PresetMapConfigListBox.SelectedItem;
+            ConfigurationManager.CurrentPresetMap = (string)PresetMapConfigListBox.SelectedItem ?? ConfigurationManager.CurrentPresetMap;
 
             selectedProcess = (CompileProcess)CompileProcessesListBox.SelectedItem;
 
-            if (selectedProcess != null && ConfigurationManager.CurrentPresetMap != null && ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(selectedProcess.Name))
+            if (selectedProcess != null &&
+                ConfigurationManager.CurrentPresetMap != null &&
+                ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) &&
+                ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == selectedProcess.Name))
             {
 				//Switch to the process grid for custom program screen
 	            if (selectedProcess.Name == "CUSTOM")
@@ -609,7 +626,7 @@ namespace CompilePalX
             foreach (CompileProcess p in ConfigurationManager.CompileProcesses)
             {
                 if (ConfigurationManager.CurrentPresetMap != null)
-                    if (ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(p.Name))
+                    if (ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == p.Name))
                         CompileProcessesSubList.Add(p);
             }
 
@@ -628,8 +645,12 @@ namespace CompilePalX
             ProgressManager.PingProgress();
         }
 
-        private void AddMapButton_Click(object sender, RoutedEventArgs e)
+        private void SelectMapButton_Click(object sender, RoutedEventArgs e)
         {
+            // do not allow more than one map file for each map preset
+            if (CompilingManager.MapFiles.Any() && (CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null))
+                return;
+
             var dialog = new OpenFileDialog();
 
             if (GameConfigurationManager.GameConfiguration.SDKMapFolder != null)
@@ -644,31 +665,37 @@ namespace CompilePalX
             }
             catch
             {
-                CompilePalLogger.LogDebug($"AddMapButton dialog failed to open, falling back to {Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
+                CompilePalLogger.LogDebug($"SelectMapButton dialog failed to open, falling back to {Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
 				// if dialog fails to open it's possible its initial directory is in a non existant folder or something
 	            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 	            dialog.ShowDialog();
             }
 
-            foreach (var file in dialog.FileNames)
-            {
-                if (CompilingManager.MapFiles.Select(y => y.File).Any(y => y == file))
-				{
-                    Console.WriteLine("Map already selected.");
-				}
-                else
-                {
-                    CompilingManager.MapFiles.Add(new Map(file));
-                }
-            }
+            var file = dialog.FileNames.FirstOrDefault();
+
+            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap))
+                CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] = new Map(file);
+            else
+                CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, new Map(file));
+            
+            SelectMapButton.IsEnabled = false;
+            ClearMapButton.IsEnabled = true;
+
+            SetSources();
         }
 
-        private void RemoveMapButton_Click(object sender, RoutedEventArgs e)
+        private void ClearMapButton_Click(object sender, RoutedEventArgs e)
         {
-            Map selectedMap = (Map)MapListBox.SelectedItem;
+            // do not allow more than one map file for each map preset
+            if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || (CompilingManager.MapFiles.ContainsKey(ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null))
+                return;
 
-            if (selectedMap != null)
-                CompilingManager.MapFiles.Remove(selectedMap);
+            CompilingManager.MapFiles.Remove(ConfigurationManager.CurrentPresetMap);
+
+            SelectMapButton.IsEnabled = true;
+            ClearMapButton.IsEnabled = false;
+
+            SetSources();
         }
 
 

@@ -161,7 +161,6 @@ namespace CompilePalX
 
             //clear old lists
             KnownPresetsMaps.Clear();
-
             PresetMapDictionary.Clear();
 
             foreach (string presetPath in presets)
@@ -279,21 +278,25 @@ namespace CompilePalX
             }
         }
 
-        public static void NewPresetMap(string name, ConfigItem chosenItem)
+        public static void NewPresetMap(string nameUnchecked, ConfigItem chosenItem)
         {
             string presetName = chosenItem.Name;
-            string folderUnchecked = Path.Combine(PresetsMapsFolder, name);
+            string folderUnchecked = Path.Combine(PresetsMapsFolder, nameUnchecked);
 
             var increment = 1;
+            string name = nameUnchecked;
             string folder = folderUnchecked;
             while (Directory.Exists(folder))
 			{
+                name = string.Concat(nameUnchecked, $"({increment})");
                 folder = string.Concat(folderUnchecked, $"({increment})");
 			}
 
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
+
+                CurrentPresetMap = name;
 
                 var preset = PresetDictionary.FirstOrDefault(x => x.Key == presetName);
                 if (preset.Key != null && preset.Value != null)

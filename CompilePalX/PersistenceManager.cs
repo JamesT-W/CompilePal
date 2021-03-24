@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using System.Windows.Documents;
 using CompilePalX.Compiling;
 using Newtonsoft.Json;
@@ -16,21 +17,30 @@ namespace CompilePalX
         {
             if (File.Exists(mapFiles))
             {
-                var list = JsonConvert.DeserializeObject<List<object>>(File.ReadAllText(mapFiles));
-                var mapList = new List<Map>();
+                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(mapFiles));
 
-                // make this backwards compatible by allowing plain string values in maplist array (old format)
-                foreach (var item in list)
+                if (dictionary.Any())
                 {
-                    if (item is string mapFile)
-                        mapList.Add(new Map(mapFile));
-                    else if (item is JObject obj)
-                        mapList.Add(obj.ToObject<Map>());
-                    else
-                        CompilePalLogger.LogDebug($"Failed to load item from mapfiles: {item}");
-                }
+                    Map map = null;
 
-                CompilingManager.MapFiles = new TrulyObservableCollection<Map>(mapList);
+                    // make this backwards compatible by allowing plain string values for map (old format)
+                    foreach (var item in dictionary)
+                    {
+                        if (item.Value is string mapFile)
+                            map = new Map(mapFile);
+                        else if (item.Value is JObject obj)
+                            map = obj.ToObject<Map>();
+                        else if (item.Value is null)
+                            map = null;
+                        else
+                        {
+                            CompilePalLogger.LogDebug($"Failed to load item from mapfiles: {item}");
+                            continue;
+                        }
+
+                        CompilingManager.MapFiles[item.Key] = map;
+                    }
+                }
             }
 
             CompilingManager.MapFiles.CollectionChanged +=

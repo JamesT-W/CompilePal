@@ -34,17 +34,9 @@ namespace CompilePalX
             set { file = value; OnPropertyChanged(nameof(File));  }
         }
 
-        private bool compile;
-        public bool Compile 
-        {
-            get => compile;
-            set { compile = value; OnPropertyChanged(nameof(Compile));  }
-        }
-
-        public Map(string file, bool compile = true)
+        public Map(string file)
         {
             File = file;
-            Compile = compile;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -83,7 +75,7 @@ namespace CompilePalX
         public static event CompileFinished OnStart;
         public static event CompileFinished OnFinish;
 
-        public static TrulyObservableCollection<Map> MapFiles = new TrulyObservableCollection<Map>();
+        public static ObservableDictionary<string, Map> MapFiles = new ObservableDictionary<string, Map>();
 
         private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
@@ -130,54 +122,48 @@ namespace CompilePalX
                 var mapErrors = new List<MapErrors>();
 
 
-                foreach (Map map in MapFiles)
-                {
-                    if (!map.Compile)
+                Map map = MapFiles[ConfigurationManager.CurrentPresetMap];
+
+                string mapFile = map.File; 
+                string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
+
+                var compileErrors = new List<Error>();
+                CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
+
+				//Update the grid so we have the most up to date order
+	            OrderManager.UpdateOrder();
+
+                GameConfigurationManager.BackupCurrentContext();
+				foreach (var compileProcess in OrderManager.CurrentOrder)
+				{
+                    currentCompileProcess = compileProcess;
+                    compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
+
+                    compileErrors.AddRange(currentCompileProcess.CompileErrors);
+
+                    //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
+                    if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
                     {
-                        CompilePalLogger.LogDebug($"Skipping {map.File}");
-                        continue;
-                    }
-
-                    string mapFile = map.File; 
-                    string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
-
-                    var compileErrors = new List<Error>();
-                    CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
-
-					//Update the grid so we have the most up to date order
-	                OrderManager.UpdateOrder();
-
-                    GameConfigurationManager.BackupCurrentContext();
-					foreach (var compileProcess in OrderManager.CurrentOrder)
-					{
-                        currentCompileProcess = compileProcess;
-                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
-
-                        compileErrors.AddRange(currentCompileProcess.CompileErrors);
-
-                        //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
-                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
                         {
-                            if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
-                            {
-                                //we have a VBSP error, aka a leak -> stop compiling;
-                                break;
-                            }
+                            //we have a VBSP error, aka a leak -> stop compiling;
+                            break;
                         }
-                        else if (GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
-						{
-                            if (currentCompileProcess.Name == "VBSP" && 
-                                (currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == ErrorFinder.instanceErrorMessage) ||
-                                currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == "**** leaked ****")))
-							{
-                                //either a leak or instance not found error has occurred -> stop compiling;
-                                break;
-                            }
-						}
-
-                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
-                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name))) / MapFiles.Count;
                     }
+                    else if (GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
+					{
+                        if (currentCompileProcess.Name == "VBSP" && 
+                            (currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == ErrorFinder.instanceErrorMessage) ||
+                            currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == "**** leaked ****")))
+						{
+                            //either a leak or instance not found error has occurred -> stop compiling;
+                            break;
+                        }
+					}
+
+                    ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
+                        ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name))
+                    );
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
 

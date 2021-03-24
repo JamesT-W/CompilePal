@@ -33,7 +33,8 @@ namespace CompilePalX.Configuration
 			//Get all default processes for config
 			var defaultProcs = new List<CompileProcess>(ConfigurationManager.CompileProcesses
 				.Where(c => c.Metadata.DoRun
-					        && ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(c.Name)
+							&& ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)
+							&& ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == c.Name)
 					        && c.Name != "ORDER"
 					        && c.Name != "CUSTOM"
 				).ToList());
@@ -41,8 +42,9 @@ namespace CompilePalX.Configuration
 			//Get custom process
 			var customProcess = (CustomProcess) ConfigurationManager.CompileProcesses
 				.FirstOrDefault(c => c.Metadata.DoRun
-					                    && ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(c.Name)
-					                    && c.Name == "CUSTOM"
+										&& ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)
+										&& ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == c.Name)
+										&& c.Name == "CUSTOM"
 				);
 
 			var newOrder = new ObservableCollection<CompileProcess>(defaultProcs);
