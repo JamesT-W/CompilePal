@@ -266,7 +266,7 @@ namespace CompilePalX
 
                     var map = CompilingManager.MapFiles[presetMap];
                     var file = map == null ? string.Empty : map.File;
-                    var compile = map == null ? false : map.Compile;
+                    var compile = map != null && map.Compile;
                     presetMapItemSources.Add(new PresetMapCheckbox(presetMap, file, compile));
                 }
                 PresetMapConfigListBox.ItemsSource = presetMapItemSources;
@@ -497,7 +497,7 @@ namespace CompilePalX
                 SetSources(true);
                 CompileProcessesListBox.SelectedIndex = 0;
 
-                PresetMapConfigListBox.SelectedItem = CompilingManager.MapFiles.FirstOrDefault(x => x.Key == presetMapName);
+                PresetMapConfigListBox.SelectedItem = PresetMapConfigListBox.ItemsSource.Cast<PresetMapCheckbox>().FirstOrDefault(x => x.PresetMap == presetMapName);
                 SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
             }
         }
@@ -519,7 +519,7 @@ namespace CompilePalX
 
                     SetSources(true);
                     CompileProcessesListBox.SelectedIndex = 0;
-                    PresetMapConfigListBox.SelectedItem = CompilingManager.MapFiles.FirstOrDefault(x => x.Key == presetMapName);
+                    PresetMapConfigListBox.SelectedItem = PresetMapConfigListBox.ItemsSource.Cast<PresetMapCheckbox>().FirstOrDefault(x => x.PresetMap == presetMapName);
                     SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
                 }
             }
@@ -527,14 +527,30 @@ namespace CompilePalX
 
         private void RemovePresetMapButton_Click(object sender, RoutedEventArgs e)
         {
+            int index = -1;
+
             var selectedItem = PresetMapConfigListBox.SelectedItem ?? previousPresetMapSelectedItem;
 
             if (selectedItem != null)
-                ConfigurationManager.RemovePresetMap(((PresetMapCheckbox)selectedItem).PresetMap);
+            {
+                var selectedItemCasted = (PresetMapCheckbox)selectedItem;
+                var itemSourceCasted = PresetMapConfigListBox.ItemsSource.Cast<PresetMapCheckbox>().ToList();
+
+                var item = itemSourceCasted.FirstOrDefault(x => x.PresetMap == selectedItemCasted.PresetMap);
+                index = itemSourceCasted.IndexOf(item);
+
+                ConfigurationManager.RemovePresetMap(selectedItemCasted.PresetMap);
+            }
 
             SetSources(true);
             CompileProcessesListBox.SelectedIndex = 0;
-            PresetMapConfigListBox.SelectedIndex = 0;
+
+            // set the new highlighted Map Preset
+            if (index != -1)
+                if (index > 0)
+                    PresetMapConfigListBox.SelectedIndex = index - 1;
+                else
+                    PresetMapConfigListBox.SelectedIndex = 0;
 
             SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
         }
