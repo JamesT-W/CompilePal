@@ -16,25 +16,25 @@ using System.Windows.Shapes;
 namespace CompilePalX
 {
     /// <summary>
-    /// Interaction logic for PresetAdder.xaml
+    /// Interaction logic for PresetMapAdder.xaml
     /// </summary>
-    public partial class PresetAdder
+    public partial class PresetMapAdder
     {
         public ConfigItem ChosenItem;
-        public PresetAdder(List<string> configPresetNames )
+        public PresetMapAdder(List<string> configPresetNames )
         {
             ObservableCollection<ConfigItem> configPresets = new ObservableCollection<ConfigItem>();
             foreach (var preset in configPresetNames)
                 configPresets.Add(new ConfigItem() { Name = preset });
 
             InitializeComponent();
-            ConfigDataGrid.ItemsSource = configPresets;
+            PresetMapDataGrid.ItemsSource = configPresets;
         }
 
         private void ConfigDataGrid_MouseUp(object sender, MouseButtonEventArgs e)
         {
 
-            ChosenItem = (ConfigItem) ConfigDataGrid.SelectedItem;
+            ChosenItem = (ConfigItem)PresetMapDataGrid.SelectedItem;
 
             Close();
         }

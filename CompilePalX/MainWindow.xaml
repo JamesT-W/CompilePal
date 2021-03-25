@@ -63,7 +63,7 @@
                         <Button x:Name="RemovePresetMapButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetMapButton_Click" DockPanel.Dock="Bottom"/>
 						<Button x:Name="ClonePresetMapButton" Content="Clone..." Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetMapButton_OnClick" DockPanel.Dock="Bottom"/>
                         <Button x:Name="AddPresetMapButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetMapButton_Click" DockPanel.Dock="Bottom"/>
-						<ListBox x:Name ="PresetMapConfigListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="PresetMapConfigListBox_SelectionChanged">
+						<ListBox x:Name ="PresetMapConfigListBox" Margin="0,0,0,5" Grid.Row="0" IsSynchronizedWithCurrentItem="True" SelectionChanged="PresetMapConfigListBox_SelectionChanged">
 							<ListBox.ItemTemplate>
 								<DataTemplate>
 									<DockPanel HorizontalAlignment="Stretch">
@@ -93,7 +93,7 @@
                             <RowDefinition/>
                             <RowDefinition Height="36px"/>
                         </Grid.RowDefinitions>
-                        <DataGrid Grid.Row ="0" Name="ConfigDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
+						<DataGrid Grid.Row ="0" Name="ConfigDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                                 <DataGridTemplateColumn Header="Value">
@@ -150,7 +150,7 @@
 
                         <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.IsUnderlined="True" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" >
                             <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab">
-                                <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
+								<DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding}">
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
@@ -176,7 +176,7 @@
                             </controls:MetroTabItem>
 
                             <controls:MetroTabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab">
-                                <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
+                                <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" IsSynchronizedWithCurrentItem="True" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
                                         <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True" Width="*" CanUserSort="False"/>
