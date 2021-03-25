@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -272,9 +272,9 @@ namespace CompilePalX
                 PresetMapConfigListBox.ItemsSource = presetMapItemSources;
             }
 
-            MapListBox.ItemsSource = CompilingManager.MapFiles;
+            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null) ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
-			OrderManager.Init();
+            OrderManager.Init();
 	        OrderManager.UpdateOrder();
 
 
@@ -765,7 +765,7 @@ namespace CompilePalX
             {
                 CompilingManager.MapFiles.Remove(ConfigurationManager.CurrentPresetMap);
             }
-                CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, new Map(file));
+            CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, new Map(file));
             
             SelectMapButton.IsEnabled = false;
             ClearMapButton.IsEnabled = true;
