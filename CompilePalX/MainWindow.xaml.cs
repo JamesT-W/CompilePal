@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -757,9 +757,14 @@ namespace CompilePalX
 
             var file = dialog.FileNames.FirstOrDefault();
 
+            if (file == null)
+                return;
+
+            // remove and add new to avoid exception
             if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap))
-                CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] = new Map(file);
-            else
+            {
+                CompilingManager.MapFiles.Remove(ConfigurationManager.CurrentPresetMap);
+            }
                 CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, new Map(file));
             
             SelectMapButton.IsEnabled = false;
@@ -774,7 +779,9 @@ namespace CompilePalX
             if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null)
                 return;
 
-            CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] = null;
+            // remove and add new to avoid exception
+            CompilingManager.MapFiles.Remove(ConfigurationManager.CurrentPresetMap);
+            CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, null);
 
             SelectMapButton.IsEnabled = true;
             ClearMapButton.IsEnabled = false;
