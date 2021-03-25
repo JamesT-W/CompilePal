@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -77,8 +77,7 @@ namespace CompilePalX
             CompileProcessesListBox.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Ordering", System.ComponentModel.ListSortDirection.Ascending));
 
             CompileProcessesListBox.SelectedIndex = 0;
-
-            PresetMapConfigListBox.SelectedIndex = 0;
+            //PresetMapConfigListBox.SelectedIndex = 0;
 
             UpdateConfigGrid();
 
@@ -273,7 +272,7 @@ namespace CompilePalX
                 PresetMapConfigListBox.ItemsSource = presetMapItemSources;
             }
 
-            MapListBox.ItemsSource = CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
+            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null) ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
 			OrderManager.Init();
 	        OrderManager.UpdateOrder();
@@ -464,8 +463,8 @@ namespace CompilePalX
             if (CompileProcessesListBox.SelectedItem != null)
             {
                 CompileProcess removed = (CompileProcess)CompileProcessesListBox.SelectedItem;
-                ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Remove(selectedProcess.Name);
-                ConfigurationManager.RemoveProcess(CompileProcessesListBox.SelectedItem.ToString());
+                ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Remove(removed.Name);
+                ConfigurationManager.RemoveProcess(removed.ToString());
             }
             UpdateProcessList();
             CompileProcessesListBox.SelectedIndex = 0;
@@ -478,21 +477,24 @@ namespace CompilePalX
 
             if (dialog.Result)
             {
-                string presetName = dialog.Text;
+                string presetMapName = dialog.Text;
 
-                PresetAdder c = new PresetAdder(ConfigurationManager.PresetDictionary.Keys.ToList());
+                PresetMapAdder c = new PresetMapAdder(ConfigurationManager.PresetDictionary.Keys.ToList());
                 c.ShowDialog();
 
                 if (c.ChosenItem != null)
                 {
-                    ConfigurationManager.NewPresetMap(presetName, c.ChosenItem);
+                    ConfigurationManager.NewPresetMap(presetMapName, c.ChosenItem);
                 }
 
                 AnalyticsManager.NewPresetMap();
 
                 SetSources();
                 CompileProcessesListBox.SelectedIndex = 0;
-                PresetMapConfigListBox.SelectedItem = presetName;
+
+
+                var asdad = CompilingManager.MapFiles;
+                PresetMapConfigListBox.SelectedItem = CompilingManager.MapFiles.FirstOrDefault(x => x.Key == presetMapName);
                 SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
             }
         }
@@ -506,15 +508,15 @@ namespace CompilePalX
 
                 if (dialog.Result)
                 {
-                    string presetName = dialog.Text;
+                    string presetMapName = dialog.Text;
 
-                    ConfigurationManager.ClonePresetMap(presetName);
+                    ConfigurationManager.ClonePresetMap(presetMapName);
 
                     AnalyticsManager.NewPresetMap();
 
                     SetSources();
                     CompileProcessesListBox.SelectedIndex = 0;
-                    PresetMapConfigListBox.SelectedItem = presetName;
+                    PresetMapConfigListBox.SelectedItem = CompilingManager.MapFiles.FirstOrDefault(x => x.Key == presetMapName);
                     SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
                 }
             }
@@ -522,7 +524,7 @@ namespace CompilePalX
 
         private void RemovePresetMapButton_Click(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (string)PresetMapConfigListBox.SelectedItem != null ? (string)PresetMapConfigListBox.SelectedItem : previousPresetMapSelectedItem;
+            var selectedItem = PresetMapConfigListBox.SelectedItem ?? previousPresetMapSelectedItem;
 
             if (selectedItem != null)
                 ConfigurationManager.RemovePresetMap(((PresetMapCheckbox)selectedItem).PresetMap);

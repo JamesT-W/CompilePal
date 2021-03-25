@@ -153,7 +153,7 @@ namespace CompilePalX
 
         private static void AssemblePresetsMaps()
         {
-            if (!Directory.Exists(PresetsMapsFolder))
+           if (!Directory.Exists(PresetsMapsFolder))
                 Directory.CreateDirectory(PresetsMapsFolder);
 
             //get a list of presets from the directories in the preset folder
@@ -280,7 +280,7 @@ namespace CompilePalX
 
         public static void NewPresetMap(string nameUnchecked, ConfigItem chosenItem)
         {
-            string presetName = chosenItem.Name;
+            string presetMapName = chosenItem.Name;
             string folderUnchecked = Path.Combine(PresetsMapsFolder, nameUnchecked);
 
             var increment = 1;
@@ -298,7 +298,7 @@ namespace CompilePalX
 
                 CurrentPresetMap = name;
 
-                var preset = PresetDictionary.FirstOrDefault(x => x.Key == presetName);
+                var preset = PresetDictionary.FirstOrDefault(x => x.Key == presetMapName);
                 if (preset.Key != null && preset.Value != null)
                 {
                     var processes = preset.Value;
@@ -338,6 +338,11 @@ namespace CompilePalX
             {
                 Directory.Delete(folder, true);
             }
+
+            CompilingManager.MapFiles.Remove(name);
+            PersistenceManager.ForceMapFilesWrite();
+
+            PresetMapDictionary.Remove(name);
 
             AssembleParameters();
         }
