@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -253,15 +253,18 @@ namespace CompilePalX
         {
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
 
-            if (ConfigurationManager.CurrentPresetMap != null && (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)))
-                CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, null);
-
             // ran during first time setup to populate PresetMapConfigListBox.ItemsSource
             if (PresetMapConfigListBox.ItemsSource == null)
             {
                 var presetMapItemSources = new List<PresetMapCheckbox>();
                 foreach (var presetMap in ConfigurationManager.KnownPresetsMaps)
                 {
+                    if (string.IsNullOrWhiteSpace(presetMap))
+                        continue;
+
+                    if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == presetMap))
+                        CompilingManager.MapFiles.Add(presetMap, null);
+
                     var map = CompilingManager.MapFiles[presetMap];
                     var file = map == null ? string.Empty : map.File;
                     var compile = map == null ? false : map.Compile;
