@@ -556,6 +556,8 @@ namespace CompilePalX
 
         private void PresetMapConfigListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            var listBox = (ListBox)sender;
+
             UpdateConfigGrid();
             UpdateProcessList();
 
@@ -575,7 +577,7 @@ namespace CompilePalX
                 ClearMapButton.IsEnabled = false;
             }
 
-            SetPreviousPresetMapSelectedItem(((ListBox)e.Source).Items.CurrentItem);
+            SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
         }
 
         private void Compile_OnClick(object sender, RoutedEventArgs e)
