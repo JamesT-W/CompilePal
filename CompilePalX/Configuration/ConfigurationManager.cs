@@ -308,14 +308,9 @@ namespace CompilePalX
             string presetName = chosenItem.Name;
             string folderUnchecked = Path.Combine(PresetsMapsFolder, nameUnchecked);
 
-            var increment = 1;
-            string name = nameUnchecked;
-            string folder = folderUnchecked;
-            while (Directory.Exists(folder))
-			{
-                name = string.Concat(nameUnchecked, $"({increment})");
-                folder = string.Concat(folderUnchecked, $"({increment})");
-			}
+            var increment = GetIncrementValueByCheckingForFilenameMatches(folderUnchecked);
+            string name = increment == 0 ? nameUnchecked : string.Concat(nameUnchecked, $"({increment})");
+            string folder = increment == 0 ? folderUnchecked : string.Concat(folderUnchecked, $"({increment})");
 
             if (!Directory.Exists(folder))
             {
@@ -344,9 +339,13 @@ namespace CompilePalX
             AssembleParameters();
         }
 
-        public static void ClonePresetMap(string name)
+        public static void ClonePresetMap(string nameUnchecked)
         {
-            string newFolder = Path.Combine(PresetsMapsFolder, name);
+            string newFolderUnchecked = Path.Combine(PresetsMapsFolder, nameUnchecked);
+
+            var increment = GetIncrementValueByCheckingForFilenameMatches(newFolderUnchecked);
+            string newFolder = increment == 0 ? newFolderUnchecked : string.Concat(newFolderUnchecked, $"({increment})");
+
             string oldFolder = Path.Combine(PresetsMapsFolder, CurrentPresetMap);
             if (!Directory.Exists(newFolder))
             {
@@ -356,6 +355,19 @@ namespace CompilePalX
 
                 AssembleParameters();
             }
+        }
+
+        private static int GetIncrementValueByCheckingForFilenameMatches(string folderUnchecked)
+		{
+            var increment = 0;
+            string folder = folderUnchecked;
+            while (Directory.Exists(folder))
+            {
+                increment++;
+                folder = string.Concat(folderUnchecked, $"({increment})");
+            }
+
+            return increment;
         }
 
         public static void RemovePresetMap(string name)
