@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -567,6 +567,8 @@ namespace CompilePalX
             SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
 
             SetSelectClearMapButtonEnabledValues();
+
+            ConfigDataGrid.ItemsSource = null;
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
