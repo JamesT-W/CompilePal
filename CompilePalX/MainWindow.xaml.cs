@@ -111,6 +111,25 @@ namespace CompilePalX
             previousPresetMapSelectedItem = selectedItem;
         }
 
+        private void SetSelectClearMapButtonEnabledValues()
+		{
+            if (!CompilingManager.MapFiles.Any())
+            {
+                SelectMapButton.IsEnabled = false;
+                ClearMapButton.IsEnabled = false;
+            }
+            else if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
+            {
+                SelectMapButton.IsEnabled = false;
+                ClearMapButton.IsEnabled = true;
+            }
+            else
+            {
+                SelectMapButton.IsEnabled = true;
+                ClearMapButton.IsEnabled = false;
+            }
+        }
+
         public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
 		{
 			return this.Dispatcher.Invoke(() => this.ShowMessageAsync(title, message, style, settings));
@@ -353,16 +372,7 @@ namespace CompilePalX
             ClonePresetMapButton.IsEnabled = true;
             PresetMapConfigListBox.IsEnabled = true;
 
-            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
-            {
-                SelectMapButton.IsEnabled = false;
-                ClearMapButton.IsEnabled = true;
-            }
-            else
-            {
-                SelectMapButton.IsEnabled = true;
-                ClearMapButton.IsEnabled = false;
-            }
+            SetSelectClearMapButtonEnabledValues();
 
             TimeElapsedLabel.Visibility = Visibility.Collapsed;
             elapsedTimeDispatcherTimer.IsEnabled = false;
@@ -555,6 +565,8 @@ namespace CompilePalX
                     PresetMapConfigListBox.SelectedIndex = 0;
 
             SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
+
+            SetSelectClearMapButtonEnabledValues();
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -589,16 +601,7 @@ namespace CompilePalX
 
             SetSources();
 
-            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
-            {
-                SelectMapButton.IsEnabled = false;
-                ClearMapButton.IsEnabled = true;
-            }
-            else
-            {
-                SelectMapButton.IsEnabled = true;
-                ClearMapButton.IsEnabled = false;
-            }
+            SetSelectClearMapButtonEnabledValues();
 
             SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
         }
