@@ -439,9 +439,10 @@ namespace CompilePalX
             {
                 CompileProcess ChosenProcess = (CompileProcess)c.ProcessDataGrid.SelectedItem;
                 ChosenProcess.Metadata.DoRun = true;
-                if (!ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(selectedProcess.Name))
+
+                if (!ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(ChosenProcess.Name))
                 {
-                    ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Add(selectedProcess.Name, new ObservableCollection<ConfigItem>());
+                    ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Add(ChosenProcess.Name, new ObservableCollection<ConfigItem>());
                 }
             }
 
