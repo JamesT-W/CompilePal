@@ -259,15 +259,19 @@ namespace CompilePalX
             if (ConfigurationManager.CurrentPresetMap != null && (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)))
                 CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, null);
 
-            var presetMapItemSources = new List<PresetMapCheckbox>();
-            foreach (var presetMap in ConfigurationManager.KnownPresetsMaps)
-			{
-                var map = CompilingManager.MapFiles[presetMap];
-                var file = map == null ? string.Empty : map.File;
-                var compile = map == null ? false : map.Compile;
-                presetMapItemSources.Add(new PresetMapCheckbox(presetMap, file, compile));
-			}
-            PresetMapConfigListBox.ItemsSource = presetMapItemSources;
+            // ran during first time setup to populate PresetMapConfigListBox.ItemsSource
+            if (PresetMapConfigListBox.ItemsSource == null)
+            {
+                var presetMapItemSources = new List<PresetMapCheckbox>();
+                foreach (var presetMap in ConfigurationManager.KnownPresetsMaps)
+                {
+                    var map = CompilingManager.MapFiles[presetMap];
+                    var file = map == null ? string.Empty : map.File;
+                    var compile = map == null ? false : map.Compile;
+                    presetMapItemSources.Add(new PresetMapCheckbox(presetMap, file, compile));
+                }
+                PresetMapConfigListBox.ItemsSource = presetMapItemSources;
+            }
 
             MapListBox.ItemsSource = CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
