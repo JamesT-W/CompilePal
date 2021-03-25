@@ -248,12 +248,12 @@ namespace CompilePalX
             ExceptionHandler.LogException(e.Exception);
         }
 
-        void SetSources()
+        void SetSources(bool forcePopulatePresetMapItemsSource = false)
         {
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
 
             // ran during first time setup to populate PresetMapConfigListBox.ItemsSource
-            if (PresetMapConfigListBox.ItemsSource == null)
+            if (PresetMapConfigListBox.ItemsSource == null || forcePopulatePresetMapItemsSource)
             {
                 var presetMapItemSources = new List<PresetMapCheckbox>();
                 foreach (var presetMap in ConfigurationManager.KnownPresetsMaps)
@@ -272,7 +272,7 @@ namespace CompilePalX
                 PresetMapConfigListBox.ItemsSource = presetMapItemSources;
             }
 
-            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null) ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
+            MapListBox.ItemsSource = CompilingManager.MapFiles;
 
 			OrderManager.Init();
 	        OrderManager.UpdateOrder();
@@ -410,6 +410,8 @@ namespace CompilePalX
 						{
                             ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap][selectedProcess.Name].Add(c.ChosenItem);
 						}
+
+                        ConfigurationManager.SaveProcesses();
 					}
 	            }
 
@@ -492,11 +494,9 @@ namespace CompilePalX
 
                 AnalyticsManager.NewPresetMap();
 
-                SetSources();
+                SetSources(true);
                 CompileProcessesListBox.SelectedIndex = 0;
 
-
-                var asdad = CompilingManager.MapFiles;
                 PresetMapConfigListBox.SelectedItem = CompilingManager.MapFiles.FirstOrDefault(x => x.Key == presetMapName);
                 SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
             }
@@ -517,7 +517,7 @@ namespace CompilePalX
 
                     AnalyticsManager.NewPresetMap();
 
-                    SetSources();
+                    SetSources(true);
                     CompileProcessesListBox.SelectedIndex = 0;
                     PresetMapConfigListBox.SelectedItem = CompilingManager.MapFiles.FirstOrDefault(x => x.Key == presetMapName);
                     SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
@@ -532,7 +532,7 @@ namespace CompilePalX
             if (selectedItem != null)
                 ConfigurationManager.RemovePresetMap(((PresetMapCheckbox)selectedItem).PresetMap);
 
-            SetSources();
+            SetSources(true);
             CompileProcessesListBox.SelectedIndex = 0;
             PresetMapConfigListBox.SelectedIndex = 0;
 

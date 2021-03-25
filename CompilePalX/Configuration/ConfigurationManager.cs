@@ -280,7 +280,7 @@ namespace CompilePalX
 
         public static void NewPresetMap(string nameUnchecked, ConfigItem chosenItem)
         {
-            string presetMapName = chosenItem.Name;
+            string presetName = chosenItem.Name;
             string folderUnchecked = Path.Combine(PresetsMapsFolder, nameUnchecked);
 
             var increment = 1;
@@ -298,7 +298,7 @@ namespace CompilePalX
 
                 CurrentPresetMap = name;
 
-                var preset = PresetDictionary.FirstOrDefault(x => x.Key == presetMapName);
+                var preset = PresetDictionary.FirstOrDefault(x => x.Key == presetName);
                 if (preset.Key != null && preset.Value != null)
                 {
                     var processes = preset.Value;
@@ -313,6 +313,8 @@ namespace CompilePalX
                     }
                 }
             }
+
+            CompilingManager.MapFiles.Add(nameUnchecked, null);
 
             AssembleParameters();
         }
