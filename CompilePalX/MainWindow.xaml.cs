@@ -773,7 +773,7 @@ namespace CompilePalX
             SelectMapButton.IsEnabled = false;
             ClearMapButton.IsEnabled = true;
 
-            SetSources();
+            SetSources(true);
         }
 
         private void ClearMapButton_Click(object sender, RoutedEventArgs e)
@@ -789,7 +789,7 @@ namespace CompilePalX
             SelectMapButton.IsEnabled = true;
             ClearMapButton.IsEnabled = false;
 
-            SetSources();
+            SetSources(true);
         }
 
 
