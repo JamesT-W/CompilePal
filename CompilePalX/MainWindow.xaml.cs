@@ -78,10 +78,7 @@ namespace CompilePalX
 
             CompileProcessesListBox.SelectedIndex = 0;
 
-            /**** TODO: auto select the first Map Preset ****/
-
-            /*PresetMapConfigListBox.SelectedIndex = 0;
-            previousPresetMapSelectedItem = PresetMapConfigListBox.SelectedIndex;*/
+            PresetMapConfigListBox.SelectedIndex = 0;
 
             UpdateConfigGrid();
 
