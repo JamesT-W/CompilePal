@@ -446,6 +446,9 @@ namespace CompilePalX
                 if (!ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(ChosenProcess.Name))
                 {
                     ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Add(ChosenProcess.Name, new ObservableCollection<ConfigItem>());
+
+                    var filepath = System.IO.Path.Combine(ConfigurationManager.PresetsMapsFolder, ConfigurationManager.CurrentPresetMap, ChosenProcess.PresetFile);
+                    File.Create(filepath).Dispose();
                 }
             }
 

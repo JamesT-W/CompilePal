@@ -30,8 +30,8 @@ namespace CompilePalX
 
         private static readonly string ParametersFolder = "./Parameters";
         private static readonly string PresetsFolder = "./Presets";
-        private static readonly string PresetsMapsFolder = "./PresetsMaps";
-        
+        public static readonly string PresetsMapsFolder = "./PresetsMaps";
+
 
         public static void AssembleParameters()
         {
