@@ -485,7 +485,11 @@ namespace CompilePalX
             }
             UpdateProcessList();
             CompileProcessesListBox.SelectedIndex = 0;
-		}
+
+            // clear parameters box if necessary
+            if (!ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Any())
+                ConfigDataGrid.ItemsSource = null;
+        }
 
         private void AddPresetMapButton_Click(object sender, RoutedEventArgs e)
         {
@@ -564,11 +568,13 @@ namespace CompilePalX
                 else
                     PresetMapConfigListBox.SelectedIndex = 0;
 
+            // clear parameters box if necessary
+            if (!ConfigurationManager.PresetMapDictionary.Any())
+                ConfigDataGrid.ItemsSource = null;
+
             SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
 
             SetSelectClearMapButtonEnabledValues();
-
-            ConfigDataGrid.ItemsSource = null;
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
