@@ -412,7 +412,8 @@ namespace CompilePalX
 						}
 
                         ConfigurationManager.SaveProcesses();
-					}
+                        ConfigurationManager.SaveParameters(selectedProcess);
+                    }
 	            }
 
                 AnalyticsManager.ModifyPresetMap();
@@ -421,7 +422,7 @@ namespace CompilePalX
             }
         }
 
-        private void RemoveParameterButton_OnClickParameterButton_Click(object sender, RoutedEventArgs e)
+        private void RemoveParameterButton_Click(object sender, RoutedEventArgs e)
         {
 	        ConfigItem selectedItem;
 	        if (processModeEnabled)
@@ -431,6 +432,8 @@ namespace CompilePalX
             
             if (selectedItem != null)
                 ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap][selectedProcess.Name].Remove(selectedItem);
+
+            ConfigurationManager.SaveParameters(selectedProcess);
 
             UpdateParameterTextBox();
         }
@@ -449,8 +452,7 @@ namespace CompilePalX
                 {
                     ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Add(ChosenProcess.Name, new ObservableCollection<ConfigItem>());
 
-                    var filepath = System.IO.Path.Combine(ConfigurationManager.PresetsMapsFolder, ConfigurationManager.CurrentPresetMap, ChosenProcess.PresetFile);
-                    File.Create(filepath).Dispose();
+                    ConfigurationManager.SavePresetsMaps();
                 }
             }
 

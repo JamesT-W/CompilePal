@@ -278,6 +278,31 @@ namespace CompilePalX
             }
         }
 
+        public static void SaveParameters(CompileProcess process)
+        {
+            string presetMapFolder = Path.Combine(PresetsMapsFolder, CurrentPresetMap);
+
+            var lines = new List<string>();
+            foreach(var parameter in PresetMapDictionary[CurrentPresetMap][process.Name])
+            {
+                string line = string.Concat(parameter.Parameter, ",");
+
+                if (parameter.Value != null)
+                    line += parameter.Value;
+
+                /**** TODO: Check if this is the correct format? ****/
+                if (parameter.Value2 != null)
+                    line += string.Concat(",", parameter.Value2);
+                /**** ****/
+
+                lines.Add(line);
+            }
+
+            string processMapPath = Path.Combine(presetMapFolder, process.PresetFile);
+
+            File.WriteAllLines(processMapPath, lines);
+        }
+
         public static void NewPresetMap(string nameUnchecked, ConfigItem chosenItem)
         {
             string presetName = chosenItem.Name;
