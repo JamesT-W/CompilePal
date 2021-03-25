@@ -339,7 +339,7 @@ namespace CompilePalX
                 }
             }
 
-            CompilingManager.MapFiles.Add(nameUnchecked, null);
+            CompilingManager.MapFiles.Add(name, null);
 
             AssembleParameters();
         }
