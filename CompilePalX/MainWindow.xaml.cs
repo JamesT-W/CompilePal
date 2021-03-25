@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -725,7 +725,9 @@ namespace CompilePalX
 
         void UpdateParameterTextBox()
         {
-            if (selectedProcess != null)
+            if (selectedProcess == null)
+                ParametersTextBox.Text = string.Empty;
+            else
                 ParametersTextBox.Text = selectedProcess.GetParameterString();
         }
 
