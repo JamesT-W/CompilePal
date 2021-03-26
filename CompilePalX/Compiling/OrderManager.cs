@@ -27,11 +27,11 @@ namespace CompilePalX.Configuration
 
 		public static void UpdateOrder()
 		{
-			if (ConfigurationManager.CurrentPresetMap == null)
+			if (string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap))
 				return;
 
 			//Get all default processes for config
-			var defaultProcs = new List<CompileProcess>(ConfigurationManager.CompileProcesses
+			var defaultProcs = new List<CompileProcess>(ConfigurationManager.CompileProcesses[ConfigurationManager.CurrentPresetMap]
 				.Where(c => c.Metadata.DoRun
 							&& ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)
 							&& ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == c.Name)
@@ -40,7 +40,7 @@ namespace CompilePalX.Configuration
 				).ToList());
 
 			//Get custom process
-			var customProcess = (CustomProcess) ConfigurationManager.CompileProcesses
+			var customProcess = (CustomProcess) ConfigurationManager.CompileProcesses[ConfigurationManager.CurrentPresetMap]
 				.FirstOrDefault(c => c.Metadata.DoRun
 										&& ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)
 										&& ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == c.Name)

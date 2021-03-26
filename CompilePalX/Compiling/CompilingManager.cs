@@ -175,8 +175,8 @@ namespace CompilePalX
                             }
                         }
 
-                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
-                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name))
+                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.SelectMany(x => x.Value).Count(c => c.Metadata.DoRun &&
+                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name)) //////////////////////////////////////////////////////    / MapFiles.SelectMany(x => x.Value).Count
                         );
                     }
 
@@ -252,7 +252,7 @@ namespace CompilePalX
             }
             IsCompiling = false;
 
-            foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(cP => cP.Process != null))
+            foreach (var compileProcess in ConfigurationManager.CompileProcesses.SelectMany(x => x.Value).Where(cP => cP.Process != null))
             {
                 try
                 {

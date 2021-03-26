@@ -39,7 +39,7 @@ namespace CompilePalX
     public partial class MainWindow
     {
         public static Dispatcher ActiveDispatcher;
-        private ObservableCollection<CompileProcess> CompileProcessesSubList = new ObservableCollection<CompileProcess>();
+        private ObservableDictionary<string, ObservableCollection<CompileProcess>> CompileProcessesSubList = new ObservableDictionary<string, ObservableCollection<CompileProcess>>();
 	    private bool processModeEnabled;
         private DispatcherTimer elapsedTimeDispatcherTimer;
 		public static MainWindow Instance { get; private set; }
@@ -269,7 +269,7 @@ namespace CompilePalX
 
         void SetSources(bool forcePopulatePresetMapItemsSource = false)
         {
-            CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
+            CompileProcessesListBox.ItemsSource = CompileProcessesSubList.Any() && CompileProcessesSubList.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) ? CompileProcessesSubList[ConfigurationManager.CurrentPresetMap] : new ObservableCollection<CompileProcess>();
 
             // ran during first time setup to populate PresetMapConfigListBox.ItemsSource
             if (PresetMapConfigListBox.ItemsSource == null || forcePopulatePresetMapItemsSource)
@@ -288,13 +288,18 @@ namespace CompilePalX
                     var compile = map != null && map.Compile;
                     presetMapItemSources.Add(new PresetMapCheckbox(presetMap, file, compile));
                 }
+
                 PresetMapConfigListBox.ItemsSource = presetMapItemSources;
             }
 
-            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null) ? new ObservableCollection<Map>() : new ObservableCollection<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
+            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null)
+                                        ? new ObservableCollection<Map>()
+                                        : new ObservableCollection<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
             OrderManager.Init();
-	        OrderManager.UpdateOrder();
+
+            if (!string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap) && ConfigurationManager.CompileProcesses != null && ConfigurationManager.CompileProcesses.Any())
+                OrderManager.UpdateOrder();
 
 
             //BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
@@ -520,7 +525,7 @@ namespace CompilePalX
 
         private async void ClonePresetMapButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (ConfigurationManager.CurrentPresetMap != null)
+            if (!string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap))
             {
                 var dialog = new InputDialog("Map Preset Name");
                 dialog.ShowDialog();
@@ -639,7 +644,7 @@ namespace CompilePalX
             selectedProcess = (CompileProcess)CompileProcessesListBox.SelectedItem;
 
             if (selectedProcess != null &&
-                ConfigurationManager.CurrentPresetMap != null &&
+                !string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap) &&
                 ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) &&
                 ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == selectedProcess.Name))
             {
@@ -712,15 +717,22 @@ namespace CompilePalX
 
             int currentIndex = CompileProcessesListBox.SelectedIndex;
 
-            CompileProcessesSubList.Clear();
+            if (!string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap) && CompileProcessesSubList.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap))
+                CompileProcessesSubList[ConfigurationManager.CurrentPresetMap].Clear();
 
             CompileProcessesListBox.Items.SortDescriptions.Add(new SortDescription("Ordering", ListSortDirection.Ascending));
 
-            foreach (CompileProcess p in ConfigurationManager.CompileProcesses)
+            if (!CompileProcessesSubList.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap))
+                CompileProcessesSubList.Add(ConfigurationManager.CurrentPresetMap, new ObservableCollection<CompileProcess>());
+
+            var compileProcessesList = !string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap) && ConfigurationManager.CompileProcesses.Any() && ConfigurationManager.CompileProcesses.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap)
+                                            ? ConfigurationManager.CompileProcesses[ConfigurationManager.CurrentPresetMap]
+                                            : new ObservableCollection<CompileProcess>();
+            foreach (CompileProcess p in compileProcessesList)
             {
-                if (ConfigurationManager.CurrentPresetMap != null)
+                if (!string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap))
                     if (ConfigurationManager.PresetMapDictionary.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Keys.Any(x => x == p.Name))
-                        CompileProcessesSubList.Add(p);
+                        CompileProcessesSubList[ConfigurationManager.CurrentPresetMap].Add(p);
             }
 
             if (currentIndex < CompileProcessesListBox.Items.Count && currentIndex >= 0)

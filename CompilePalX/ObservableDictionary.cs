@@ -94,6 +94,9 @@ namespace System.Collections.ObjectModel
         {
             get
             {
+                if (!Dictionary.Keys.Any(x => x.Equals(key)))
+                    return default(TValue);
+                
                 return Dictionary[key];
             }
             set

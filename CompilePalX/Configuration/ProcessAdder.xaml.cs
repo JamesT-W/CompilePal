@@ -24,7 +24,7 @@ namespace CompilePalX
         public ProcessAdder()
         {
             InitializeComponent();
-            ProcessDataGrid.ItemsSource = ConfigurationManager.CompileProcesses;
+            ProcessDataGrid.ItemsSource = ConfigurationManager.CompileProcesses[ConfigurationManager.CurrentPresetMap];
         }
 
         private void ConfigDataGrid_MouseUp(object sender, MouseButtonEventArgs e)

@@ -18,7 +18,7 @@ namespace CompilePalX
 
     static class ConfigurationManager
     {
-        public static ObservableCollection<CompileProcess> CompileProcesses = new ObservableCollection<CompileProcess>();
+        public static ObservableDictionary<string, ObservableCollection<CompileProcess>> CompileProcesses = new ObservableDictionary<string, ObservableCollection<CompileProcess>>();
         public static ObservableCollection<string> KnownPresets = new ObservableCollection<string>();
         public static ObservableCollection<string> KnownPresetsMaps = new ObservableCollection<string>();
 
@@ -35,55 +35,74 @@ namespace CompilePalX
 
         public static void AssembleParameters()
         {
+            var allPresetMapNames = new List<string>();
+
+            // get all preset map names, as there is no knowledge of them at this point on startup
+            var presetsMaps = Directory.GetDirectories(PresetsMapsFolder);
+            foreach (string presetPath in presetsMaps)
+            {
+                allPresetMapNames.Add(Path.GetFileName(presetPath));
+            }
+
+
             CompileProcesses.Clear();
 
-            CompileProcesses.Add(new BSPPack());
-            CompileProcesses.Add(new CubemapProcess());
-            CompileProcesses.Add(new NavProcess());
-            CompileProcesses.Add(new ShutdownProcess());
-            CompileProcesses.Add(new UtilityProcess());
-			CompileProcesses.Add(new CustomProcess());
-
-            //collect new metadatas
-
-            var metadatas = Directory.GetDirectories(ParametersFolder);
-
-            foreach (var metadata in metadatas)
+            string tempPresetName = "presetMapUsedToFillPresetDictionaryOnly";
+            var presetMapNames = allPresetMapNames.Any() ? allPresetMapNames : new List<string>() { tempPresetName };
+            foreach (var presetMap in presetMapNames)
             {
-                string folderName = Path.GetFileName(metadata);
+                CompileProcesses.Add(presetMap, new ObservableCollection<CompileProcess>());
 
-                if (CompileProcesses.Any(c => String.Equals(c.Metadata.Name, folderName, StringComparison.CurrentCultureIgnoreCase)))
-                    continue;
+                CompileProcesses[presetMap].Add(new BSPPack());
+                CompileProcesses[presetMap].Add(new CubemapProcess());
+                CompileProcesses[presetMap].Add(new NavProcess());
+                CompileProcesses[presetMap].Add(new ShutdownProcess());
+                CompileProcesses[presetMap].Add(new UtilityProcess());
+                CompileProcesses[presetMap].Add(new CustomProcess());
 
-                var compileProcess = new CompileExecutable(folderName);
+                //collect new metadatas
 
-                CompileProcesses.Add(compileProcess);
+                var metadatas = Directory.GetDirectories(ParametersFolder);
+
+                foreach (var metadata in metadatas)
+                {
+                    string folderName = Path.GetFileName(metadata);
+
+                    if (CompileProcesses[presetMap].Any(c => String.Equals(c.Metadata.Name, folderName, StringComparison.CurrentCultureIgnoreCase)))
+                        continue;
+
+                    var compileProcess = new CompileExecutable(folderName);
+
+                    CompileProcesses[presetMap].Add(compileProcess);
+                }
+
+                //collect legacy metadatas
+                var csvMetaDatas = Directory.GetFiles(ParametersFolder + "\\", "*.meta");
+
+                foreach (var metadata in csvMetaDatas)
+                {
+                    string name = Path.GetFileName(metadata).Replace(".meta", "");
+
+                    if (CompileProcesses[presetMap].Any(c => String.Equals(c.Metadata.Name, name, StringComparison.CurrentCultureIgnoreCase)))
+                        continue;
+
+                    var compileProcess = new CompileExecutable(name);
+
+                    CompileProcesses[presetMap].Add(compileProcess);
+                }
+
+                CompileProcesses[presetMap] = new ObservableCollection<CompileProcess>(CompileProcesses[presetMap].OrderBy(c => c.Metadata.Order));
+
+                AssemblePreset(presetMap);
+                AssemblePresetMap(presetMap);
             }
 
-            //collect legacy metadatas
-            var csvMetaDatas = Directory.GetFiles(ParametersFolder + "\\", "*.meta");
-
-            foreach (var metadata in csvMetaDatas)
-            {
-                string name = Path.GetFileName(metadata).Replace(".meta", "");
-
-                if (CompileProcesses.Any(c => String.Equals(c.Metadata.Name, name, StringComparison.CurrentCultureIgnoreCase)))
-                    continue;
-
-                var compileProcess = new CompileExecutable(name);
-
-                CompileProcesses.Add(compileProcess);
-            }
-
-
-
-            CompileProcesses = new ObservableCollection<CompileProcess>(CompileProcesses.OrderBy(c => c.Metadata.Order));
-
-            AssemblePresets();
-            AssemblePresetsMaps();
+            // remove temp preset map name if used
+            if (CompileProcesses.Any(x => x.Key == tempPresetName))
+                CompileProcesses.Remove(tempPresetName);
         }
 
-        private static void AssemblePresets()
+        private static void AssemblePreset(string presetMap)
         {
             if (!Directory.Exists(PresetsFolder))
                 Directory.CreateDirectory(PresetsFolder);
@@ -93,13 +112,13 @@ namespace CompilePalX
 
             //clear old lists
             KnownPresets.Clear();
-
             PresetDictionary.Clear();
 
             foreach (string presetPath in presets)
             {
                 string preset = Path.GetFileName(presetPath);
-                foreach (var process in CompileProcesses)
+
+                foreach (var process in CompileProcesses[presetMap])
                 {
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
@@ -151,22 +170,22 @@ namespace CompilePalX
             }
         }
 
-        private static void AssemblePresetsMaps()
+        private static void AssemblePresetMap(string presetMap)
         {
            if (!Directory.Exists(PresetsMapsFolder))
                 Directory.CreateDirectory(PresetsMapsFolder);
 
-            //get a list of presets from the directories in the preset folder
-            var presets = Directory.GetDirectories(PresetsMapsFolder);
+            //get a list of map presets from the directories in the preset folder
+            var presetsMaps = Directory.GetDirectories(PresetsMapsFolder);
 
             //clear old lists
             KnownPresetsMaps.Clear();
             PresetMapDictionary.Clear();
 
-            foreach (string presetPath in presets)
+            foreach (string presetPath in presetsMaps)
             {
                 string preset = Path.GetFileName(presetPath);
-                foreach (var process in CompileProcesses)
+                foreach (var process in CompileProcesses[presetMap])
                 {
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
@@ -212,34 +231,9 @@ namespace CompilePalX
                         }
                     }
                 }
-                CompilePalLogger.LogLine("Added preset map {0} for processes {1}", preset, string.Join(", ", CompileProcesses));
+                CompilePalLogger.LogLine("Added preset map {0} for processes {1}", preset, string.Join(", ", CompileProcesses[presetMap]));
                 CurrentPresetMap = preset;
                 KnownPresetsMaps.Add(preset);
-            }
-        }
-
-        public static void SavePresets()
-        {
-            foreach (var knownPreset in KnownPresets)
-            {
-                string presetFolder = Path.Combine(PresetsFolder, knownPreset);
-
-                foreach (var compileProcess in CompileProcesses)
-                {
-                    if (PresetDictionary[knownPreset].ContainsKey(compileProcess.Name))
-                    {
-                        var lines = new List<string>();
-                        foreach (var item in PresetDictionary[knownPreset][compileProcess.Name])
-                        {
-                            string line = WritePresetLine(item);
-                            lines.Add(line);
-                        }
-
-                        string presetPath = Path.Combine(presetFolder, compileProcess.PresetFile);
-
-                        File.WriteAllLines(presetPath, lines);
-                    }
-                }
             }
         }
 
@@ -249,20 +243,23 @@ namespace CompilePalX
             {
                 string presetMapFolder = Path.Combine(PresetsMapsFolder, knownPreset);
 
-                foreach (var compileProcess in CompileProcesses)
+                foreach (var presetMap in CompileProcesses)
                 {
-                    if (PresetMapDictionary[knownPreset].ContainsKey(compileProcess.Name))
+                    foreach (var compileProcess in presetMap.Value)
                     {
-                        var lines = new List<string>();
-                        foreach (var item in PresetMapDictionary[knownPreset][compileProcess.Name])
+                        if (PresetMapDictionary[knownPreset].ContainsKey(compileProcess.Name))
                         {
-                            string line = WritePresetLine(item);
-                            lines.Add(line);
+                            var lines = new List<string>();
+                            foreach (var item in PresetMapDictionary[knownPreset][compileProcess.Name])
+                            {
+                                string line = WritePresetLine(item);
+                                lines.Add(line);
+                            }
+
+                            string presetMapPath = Path.Combine(presetMapFolder, compileProcess.PresetFile);
+
+                            File.WriteAllLines(presetMapPath, lines);
                         }
-
-                        string presetMapPath = Path.Combine(presetMapFolder, compileProcess.PresetFile);
-
-                        File.WriteAllLines(presetMapPath, lines);
                     }
                 }
             }
@@ -270,11 +267,14 @@ namespace CompilePalX
 
         public static void SaveProcesses()
         {
-            foreach (var process in CompileProcesses)
+            foreach (var presetMap in CompileProcesses)
             {
-                string jsonMetadata = Path.Combine("./Parameters", process.Metadata.Name, "meta.json");
+                foreach (var compileProcess in presetMap.Value)
+                {
+                    string jsonMetadata = Path.Combine("./Parameters", compileProcess.Metadata.Name, "meta.json");
 
-                File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(process.Metadata, Formatting.Indented));
+                    File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(compileProcess.Metadata, Formatting.Indented));
+                }
             }
         }
 
