@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -705,9 +705,9 @@ namespace CompilePalX
 
 					UpdateParameterTextBox();
 	            }
-
-
             }
+
+            CompileProcessesListBox.SelectedIndex = CompileProcessesListBox.SelectedIndex > 0 && CompileProcessesListBox.SelectedIndex <= CompileProcessesListBox.Items.Count ? CompileProcessesListBox.SelectedIndex : 0;
         }
 
         private void UpdateProcessList()
