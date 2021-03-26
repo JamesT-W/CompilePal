@@ -90,6 +90,8 @@ namespace CompilePalX
 
         public static bool IsCompiling { get; private set; }
 
+        public static string CurrentMapNameCompiling { get; private set; }
+
         public static void ToggleCompileState()
         {
             if (IsCompiling)
@@ -129,9 +131,12 @@ namespace CompilePalX
 
                 var mapErrors = new List<MapErrors>();
 
-
-                foreach (Map map in MapFiles.Values)
+                foreach (var mapName in MapFiles.Where(x => x.Value != null && x.Value.Compile).OrderByDescending(x => x.Key).Select(x => x.Key).ToList())
                 {
+                    CurrentMapNameCompiling = mapName;
+
+                    Map map = MapFiles.FirstOrDefault(x => x.Key == mapName).Value;
+
                     if (map == null || !map.Compile)
                     {
                         CompilePalLogger.LogDebug($"Skipping {MapFiles.Where(x => x.Value == map).Select(x => x.Key).FirstOrDefault()}");
@@ -174,9 +179,16 @@ namespace CompilePalX
                                 break;
                             }
                         }
-
-                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.SelectMany(x => x.Value).Count(c => c.Metadata.DoRun &&
-                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].ContainsKey(compileProcess.Name)) //////////////////////////////////////////////////////    / MapFiles.SelectMany(x => x.Value).Count
+                        
+                        ProgressManager.Progress += (1d / MainWindow.CompileProcessesSubList
+                                                        .Where(x => MapFiles.Any()
+                                                            && MapFiles.Keys.Any(y => y == x.Key)
+                                                            && MapFiles[x.Key] != null
+                                                            && MapFiles[x.Key].Compile)
+                                                        .SelectMany(x => x.Value)
+                                                        .Count(c => c.Metadata.DoRun &&
+                                                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap]
+                                                                .ContainsKey(compileProcess.Name))
                         );
                     }
 

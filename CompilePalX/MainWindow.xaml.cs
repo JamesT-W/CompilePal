@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,7 +39,7 @@ namespace CompilePalX
     public partial class MainWindow
     {
         public static Dispatcher ActiveDispatcher;
-        private ObservableDictionary<string, ObservableCollection<CompileProcess>> CompileProcessesSubList = new ObservableDictionary<string, ObservableCollection<CompileProcess>>();
+        internal static ObservableDictionary<string, ObservableCollection<CompileProcess>> CompileProcessesSubList = new ObservableDictionary<string, ObservableCollection<CompileProcess>>();
 	    private bool processModeEnabled;
         private DispatcherTimer elapsedTimeDispatcherTimer;
 		public static MainWindow Instance { get; private set; }
@@ -73,6 +73,17 @@ namespace CompilePalX
 
 
             SetSources();
+
+            //setup CompileProcessesSubList for all Map Presets loaded, as this is used at compile
+            var currentMap = ConfigurationManager.CurrentPresetMap.ToString();
+            foreach (var map in ConfigurationManager.KnownPresetsMaps.Where(x => x != currentMap))
+			{
+                ConfigurationManager.CurrentPresetMap = map;
+                UpdateProcessList();
+            }
+            ConfigurationManager.CurrentPresetMap = currentMap;
+            UpdateProcessList();
+            //
 
             CompileProcessesListBox.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Ordering", System.ComponentModel.ListSortDirection.Ascending));
 

@@ -50,7 +50,7 @@ namespace CompilePalX
 
                     if (progress >= 1)
                     {
-                        TitleChange($"{Math.Floor(progress * 100d)}% - {defaultTitle} {UpdateManager.CurrentVersion}X");
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {defaultTitle} {UpdateManager.CurrentVersion}X");
 
                         System.Media.SystemSounds.Exclamation.Play();
                     }
@@ -62,7 +62,7 @@ namespace CompilePalX
                     }
                     else
                     {
-                        TitleChange($"{Math.Floor(progress * 100d)}% - {defaultTitle} {UpdateManager.CurrentVersion}X");
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {defaultTitle} {UpdateManager.CurrentVersion}X");
                     }
                 });
 
