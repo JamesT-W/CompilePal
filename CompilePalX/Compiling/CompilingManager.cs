@@ -115,8 +115,6 @@ namespace CompilePalX
 
             OnClear();
 
-            CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPresetMap}' compile.");
-
             compileThread = new Thread(CompileThreaded);
             compileThread.Start();
         }
@@ -134,6 +132,8 @@ namespace CompilePalX
                 foreach (var mapName in MapFiles.Where(x => x.Value != null && x.Value.Compile).OrderByDescending(x => x.Key).Select(x => x.Key).ToList())
                 {
                     CurrentMapNameCompiling = mapName;
+
+                    CompilePalLogger.LogLine($"Starting a '{CurrentMapNameCompiling}' compile.");
 
                     Map map = MapFiles.FirstOrDefault(x => x.Key == mapName).Value;
 
