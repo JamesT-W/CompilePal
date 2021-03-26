@@ -94,8 +94,8 @@ namespace CompilePalX
                 CompileProcesses[presetMap] = new ObservableCollection<CompileProcess>(CompileProcesses[presetMap].OrderBy(c => c.Metadata.Order));
 
                 AssemblePreset(presetMap);
-                AssemblePresetMap(presetMap);
             }
+            AssemblePresetMaps();
 
             // remove temp preset map name if used
             if (CompileProcesses.Any(x => x.Key == tempPresetName))
@@ -170,7 +170,7 @@ namespace CompilePalX
             }
         }
 
-        private static void AssemblePresetMap(string presetMap)
+        private static void AssemblePresetMaps()
         {
            if (!Directory.Exists(PresetsMapsFolder))
                 Directory.CreateDirectory(PresetsMapsFolder);
@@ -182,12 +182,15 @@ namespace CompilePalX
             KnownPresetsMaps.Clear();
             PresetMapDictionary.Clear();
 
-            foreach (string presetPath in presetsMaps)
+            foreach (string presetMapPath in presetsMaps)
             {
-                string preset = Path.GetFileName(presetPath);
+                string presetMap = Path.GetFileName(presetMapPath);
+
+                PresetMapDictionary.Add(presetMap, new ObservableDictionary<string, ObservableCollection<ConfigItem>>());
+
                 foreach (var process in CompileProcesses[presetMap])
                 {
-                    string file = Path.Combine(presetPath, process.PresetFile);
+                    string file = Path.Combine(presetMapPath, process.PresetFile);
                     if (File.Exists(file))
                     {
                         var processDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>
@@ -220,20 +223,13 @@ namespace CompilePalX
                             }
                         }
 
-                        if (PresetMapDictionary.ContainsKey(preset))
-                        {
-                            foreach (var p in processDictionary)
-                                PresetMapDictionary[preset].Add(p.Key, p.Value);
-                        }
-                        else
-                        {
-                            PresetMapDictionary.Add(preset, processDictionary);
-                        }
+                        foreach (var p in processDictionary)
+                            PresetMapDictionary[presetMap].Add(p.Key, p.Value);
                     }
                 }
-                CompilePalLogger.LogLine("Added preset map {0} for processes {1}", preset, string.Join(", ", CompileProcesses[presetMap]));
-                CurrentPresetMap = preset;
-                KnownPresetsMaps.Add(preset);
+                CompilePalLogger.LogLine("Added preset map {0} for processes {1}", presetMap, string.Join(", ", CompileProcesses[presetMap]));
+                CurrentPresetMap = presetMap;
+                KnownPresetsMaps.Add(presetMap);
             }
         }
 
