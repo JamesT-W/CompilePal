@@ -274,7 +274,7 @@ namespace CompilePalX
             // ran during first time setup to populate PresetMapConfigListBox.ItemsSource
             if (PresetMapConfigListBox.ItemsSource == null || forcePopulatePresetMapItemsSource)
             {
-                var presetMapItemSources = new List<PresetMapCheckbox>();
+                var presetMapItemSources = new ObservableCollection<PresetMapCheckbox>();
                 foreach (var presetMap in ConfigurationManager.KnownPresetsMaps)
                 {
                     if (string.IsNullOrWhiteSpace(presetMap))
@@ -291,7 +291,7 @@ namespace CompilePalX
                 PresetMapConfigListBox.ItemsSource = presetMapItemSources;
             }
 
-            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null) ? new List<Map>() : new List<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
+            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null) ? new ObservableCollection<Map>() : new ObservableCollection<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
             OrderManager.Init();
 	        OrderManager.UpdateOrder();
@@ -599,8 +599,6 @@ namespace CompilePalX
 
         private void PresetMapConfigListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var listBox = (ListBox)sender;
-
             UpdateConfigGrid();
             UpdateProcessList();
 
