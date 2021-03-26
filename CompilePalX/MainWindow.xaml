@@ -8,8 +8,8 @@
             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
 
             Title="Compile Pal X"
-            MinHeight="550" MinWidth="790"
-            Height="550" Width="790"
+            MinHeight="600" MinWidth="950"
+            Height="600" Width="950"
             Closing="MetroWindow_Closing"
             IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
             Activated="MetroWindow_Activated" 
@@ -35,11 +35,11 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80" MinHeight="80" MaxHeight="240"></RowDefinition>
+            <RowDefinition Height="40" MinHeight="40" MaxHeight="80"></RowDefinition>
             <RowDefinition Height="5"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1">
+        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,180,0" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
@@ -48,8 +48,8 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-		<Button x:Name="SelectMapButton" IsEnabled="False" Grid.Row="0" Content="Select VMF..." Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="SelectMapButton_Click"/>
-		<Button x:Name="ClearMapButton" IsEnabled="False" Grid.Row="0" Content="Clear" Margin="0,45,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="ClearMapButton_Click"/>
+		<Button x:Name="SelectMapButton" IsEnabled="False" Grid.Row="0" Content="Select VMF..." Margin="0,12,95,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="SelectMapButton_Click"/>
+		<Button x:Name="ClearMapButton" IsEnabled="False" Grid.Row="0" Content="Clear" Margin="0,12,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="ClearMapButton_Click"/>
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" Width="512"></GridSplitter>
         <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.IsUnderlined="True" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
             <controls:MetroTabItem Header="CONFIG">
@@ -251,6 +251,3 @@
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>
 </controls:MetroWindow>
-        
-
-        
