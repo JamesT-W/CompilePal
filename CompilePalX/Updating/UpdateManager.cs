@@ -23,12 +23,12 @@ namespace CompilePalX
         private static Version latestVersion;
         public static string LatestVersion => latestVersion.ToString(isPrerelease ? 2 : 1);
 
-        private const string LatestVersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version.txt";
-        private const string LatestPrereleaseVersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version_prerelease.txt";
+        private const string LatestVersionURL = "https://raw.githubusercontent.com/JamesT-W/CompilePal/master/CompilePalX/version.txt";
+        private const string LatestPrereleaseVersionURL = "https://raw.githubusercontent.com/JamesT-W/CompilePal/master/CompilePalX/version_prerelease.txt";
 
-        private static string MajorUpdateURL = "https://github.com/ruarai/CompilePal/releases/latest";
+        private static string MajorUpdateURL = "https://github.com/JamesT-W/CompilePal/releases/latest";
         // Tags must be in form: v0major.minor
-        private static string PrereleaseUpdateURL => $"https://github.com/ruarai/CompilePal/releases/tag/v0{LatestVersion}";
+        private static string PrereleaseUpdateURL => $"https://github.com/JamesT-W/CompilePal/releases/tag/v0{LatestVersion}";
         public static Uri UpdateURL => new Uri(isPrerelease ? PrereleaseUpdateURL : MajorUpdateURL);
 
         private static bool isPrerelease = false;

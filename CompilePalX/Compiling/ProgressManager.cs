@@ -37,7 +37,7 @@ namespace CompilePalX
             set { SetProgress(value); }
         }
 
-        static public void SetProgress(double progress)
+        static public void SetProgress(double progress, bool forceUseCompileTaskbar = false, bool useNextCompileProcessName = false)
         {
             if (ready)
             {
@@ -48,13 +48,15 @@ namespace CompilePalX
                     taskbarInfo.ProgressValue = progress;
                     ProgressChange(progress * 100);
 
+                    var compileProcessName = useNextCompileProcessName ? CompilingManager.NextCompileProcess : CompilingManager.CurrentCompileProcess;
+
                     if (progress >= 1)
                     {
-                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {defaultTitle} {UpdateManager.CurrentVersion}X");
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {compileProcessName}");
 
                         System.Media.SystemSounds.Exclamation.Play();
                     }
-                    else if (progress <= 0)
+                    else if (progress <= 0 && !forceUseCompileTaskbar)
                     {
                         taskbarInfo.ProgressState = TaskbarItemProgressState.None;
                         TitleChange(
@@ -62,7 +64,7 @@ namespace CompilePalX
                     }
                     else
                     {
-                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {defaultTitle} {UpdateManager.CurrentVersion}X");
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {compileProcessName}");
                     }
                 });
 

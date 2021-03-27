@@ -835,7 +835,7 @@ namespace CompilePalX
 
         private void UpdateLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("http://www.github.com/ruarai/CompilePal/releases/latest");
+            Process.Start("http://www.github.com/JamesT-W/CompilePal/releases/latest");
         }
 
 	    private void ReadOutput_OnChecked(object sender, RoutedEventArgs e)
@@ -970,7 +970,7 @@ namespace CompilePalX
 
         private void BugReportButton_OnClick(object sender, RoutedEventArgs e)
         {
-			Process.Start(new ProcessStartInfo("https://github.com/ruarai/CompilePal/issues/"));
+			Process.Start(new ProcessStartInfo("https://github.com/JamesT-W/CompilePal/issues/"));
             e.Handled = true;
         }
 

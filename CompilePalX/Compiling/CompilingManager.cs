@@ -65,7 +65,7 @@ namespace CompilePalX
             
         private static void CompilePalLogger_OnErrorFound(Error e)
         {
-            currentCompileProcess.CompileErrors.Add(e);
+            CurrentCompileProcess.CompileErrors.Add(e);
 
             if (e.Severity == 5 && IsCompiling)
             {
@@ -121,7 +121,8 @@ namespace CompilePalX
             compileThread.Start();
         }
 
-        private static CompileProcess currentCompileProcess;
+        internal static CompileProcess CurrentCompileProcess;
+        internal static CompileProcess NextCompileProcess;
 
         private static void CompileThreaded()
         {
@@ -160,15 +161,21 @@ namespace CompilePalX
                     var mapPresetProcesses = ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].Select(y => y.Key).ToList();
                     foreach (var compileProcess in allCompileProcesses.Where(x => mapPresetProcesses.Any(y => y == x.Name)))
                     {
-                        currentCompileProcess = compileProcess;
+                        CurrentCompileProcess = compileProcess;
+                        NextCompileProcess = allCompileProcesses.Where(x => mapPresetProcesses.Any(y => y == x.Name)).Skip(1).FirstOrDefault();
+
+                        // first process only, force it to show process name in taskbar
+                        if (ProgressManager.Progress == 0)
+                            ProgressManager.SetProgress(0, forceUseCompileTaskbar: true);
+
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
-                        compileErrors.AddRange(currentCompileProcess.CompileErrors);
+                        compileErrors.AddRange(CurrentCompileProcess.CompileErrors);
 
                         //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
                         if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
                         {
-                            if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
+                            if (CurrentCompileProcess.Name == "VBSP" && CurrentCompileProcess.CompileErrors.Count > 0)
                             {
                                 //we have a VBSP error, aka a leak -> stop compiling;
                                 break;
@@ -176,15 +183,15 @@ namespace CompilePalX
                         }
                         else if (GameConfigurationManager.GameConfiguration.Name == "Counter-Strike: Global Offensive")
                         {
-                            if (currentCompileProcess.Name == "VBSP" &&
-                                (currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == ErrorFinder.instanceErrorMessage) ||
-                                currentCompileProcess.CompileErrors.Any(x => x.ShortDescription == "**** leaked ****")))
+                            if (CurrentCompileProcess.Name == "VBSP" &&
+                                (CurrentCompileProcess.CompileErrors.Any(x => x.ShortDescription == ErrorFinder.instanceErrorMessage) ||
+                                CurrentCompileProcess.CompileErrors.Any(x => x.ShortDescription == "**** leaked ****")))
                             {
                                 //either a leak or instance not found error has occurred -> stop compiling;
                                 break;
                             }
                         }
-                        
+
                         ProgressManager.Progress += (1d / MainWindow.CompileProcessesSubList
                                                         .Where(x => MapFiles.Any()
                                                             && MapFiles.Keys.Any(y => y == x.Key)
@@ -195,6 +202,10 @@ namespace CompilePalX
                                                             ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling]
                                                                 .ContainsKey(compileProcess.Name))
                         );
+
+                        // if there is a next compile process, force that to be used in the taskbar
+                        if (NextCompileProcess != null)
+                            ProgressManager.SetProgress(ProgressManager.Progress, useNextCompileProcessName: true); 
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
