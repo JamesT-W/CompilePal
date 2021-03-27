@@ -102,10 +102,12 @@ namespace CompilePalX
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
 
 
-        public string GetParameterString()
+        public string GetParameterString(bool overrideUseCompilingMapName = false)
         {
+            var mapName = overrideUseCompilingMapName ? CompilingManager.CurrentMapNameCompiling : ConfigurationManager.CurrentPresetMap;
+
             string parameters = string.Empty;
-            foreach (var parameter in ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap][Name])
+            foreach (var parameter in ConfigurationManager.PresetMapDictionary[mapName][Name])
             {
                 // if on Windows, set threads to max available in the system by default, if not already set to a value
                 if (parameter.Name.ToLower() == "threads" && string.IsNullOrWhiteSpace(parameter.Value) && Environment.OSVersion.Platform == PlatformID.Win32NT)

@@ -129,13 +129,13 @@ namespace CompilePalX
 
                 var mapErrors = new List<MapErrors>();
 
-                foreach (var mapName in MapFiles.Where(x => x.Value != null && x.Value.Compile).OrderByDescending(x => x.Key).Select(x => x.Key).ToList())
+                foreach (var mapPresetName in MapFiles.Where(x => x.Value != null && x.Value.Compile).OrderByDescending(x => x.Key).Select(x => x.Key).ToList())
                 {
-                    CurrentMapNameCompiling = mapName;
+                    CurrentMapNameCompiling = mapPresetName;
 
                     CompilePalLogger.LogLine($"Starting a '{CurrentMapNameCompiling}' compile.");
 
-                    Map map = MapFiles.FirstOrDefault(x => x.Key == mapName).Value;
+                    Map map = MapFiles.FirstOrDefault(x => x.Key == CurrentMapNameCompiling).Value;
 
                     if (map == null || !map.Compile)
                     {
@@ -153,7 +153,10 @@ namespace CompilePalX
                     OrderManager.UpdateOrder();
 
                     GameConfigurationManager.BackupCurrentContext();
-                    foreach (var compileProcess in OrderManager.CurrentOrder)
+
+                    var allCompileProcesses = ConfigurationManager.CompileProcesses[CurrentMapNameCompiling].ToList();
+                    var mapPresetProcesses = ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].Select(y => y.Key).ToList();
+                    foreach (var compileProcess in allCompileProcesses.Where(x => mapPresetProcesses.Any(y => y == x.Name)))
                     {
                         currentCompileProcess = compileProcess;
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
@@ -187,7 +190,7 @@ namespace CompilePalX
                                                             && MapFiles[x.Key].Compile)
                                                         .SelectMany(x => x.Value)
                                                         .Count(c => c.Metadata.DoRun &&
-                                                            ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap]
+                                                            ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling]
                                                                 .ContainsKey(compileProcess.Name))
                         );
                     }
@@ -205,7 +208,7 @@ namespace CompilePalX
         private static void postCompile(List<MapErrors> errors)
         {
             CompilePalLogger.LogLineColor(
-	            $"\n'{ConfigurationManager.CurrentPresetMap}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"\n'{CurrentMapNameCompiling}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {

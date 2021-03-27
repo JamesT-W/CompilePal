@@ -38,7 +38,7 @@ namespace CompilePalX.Compilers
                     };
             }
 
-            var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile);
+            var args = GameConfigurationManager.SubstituteValues(GetParameterString(true), c.MapFile);
 
             Process.StartInfo.FileName = GameConfigurationManager.SubstituteValues(Metadata.Path);;
             Process.StartInfo.Arguments = string.Join(" ", args);
