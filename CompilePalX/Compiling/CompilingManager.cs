@@ -132,7 +132,8 @@ namespace CompilePalX
 
                 var mapErrors = new List<MapErrors>();
 
-                foreach (var mapPresetName in MapFiles.Where(x => x.Value != null && x.Value.Compile).OrderByDescending(x => x.Key).Select(x => x.Key).ToList())
+                var mapsToCompile = MapFiles.Where(x => x.Value != null && x.Value.Compile).OrderByDescending(x => x.Key).Select(x => x.Key).ToList();
+                foreach (var mapPresetName in mapsToCompile)
                 {
                     CurrentMapNameCompiling = mapPresetName;
 
@@ -157,16 +158,15 @@ namespace CompilePalX
 
                     GameConfigurationManager.BackupCurrentContext();
 
-                    var allCompileProcesses = ConfigurationManager.CompileProcesses[CurrentMapNameCompiling].ToList();
-                    var mapPresetProcesses = ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].Select(y => y.Key).ToList();
-                    foreach (var compileProcess in allCompileProcesses.Where(x => mapPresetProcesses.Any(y => y == x.Name)))
+                    var allProcessesCompilingByMapName = MainWindow.CompileProcessesSubList[mapPresetName].Where(x => x.Metadata.DoRun && ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].ContainsKey(x.Name));
+                    foreach (var compileProcess in allProcessesCompilingByMapName)
                     {
                         CurrentCompileProcess = compileProcess;
-                        NextCompileProcess = allCompileProcesses.Where(x => mapPresetProcesses.Any(y => y == x.Name)).Skip(1).FirstOrDefault();
+                        NextCompileProcess = allProcessesCompilingByMapName.Skip(1).FirstOrDefault();
 
-                        // first process only, force it to show process name in taskbar
-                        if (ProgressManager.Progress == 0)
-                            ProgressManager.SetProgress(0, forceUseCompileTaskbar: true);
+                        // force it to show process name in taskbar if it is the first process of a map's compile
+                        if (ProgressManager.Progress % (1d / mapsToCompile.Count()) == 0)
+                            ProgressManager.SetProgress(ProgressManager.Progress, forceUseCompileTaskbar: true);
 
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
