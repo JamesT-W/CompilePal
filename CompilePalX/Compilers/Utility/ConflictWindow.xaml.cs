@@ -200,5 +200,5 @@ namespace CompilePalX.Compilers.UtilityProcess
         {
             Close();
         }
-    }
+	}
 }

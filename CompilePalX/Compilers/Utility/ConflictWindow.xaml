@@ -5,10 +5,12 @@
         xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
         Loaded="OnLoaded"
         Title="Particle Manifest Conflict"
-                      IconEdgeMode="Aliased" ShowIconOnTitleBar="False"
-                      Height="450" Width="800"
-                      MinHeight="450" MinWidth="800"
-                      BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" >
+        IconEdgeMode="Aliased" ShowIconOnTitleBar="False"
+        Height="450" Width="800"
+        MinHeight="450" MinWidth="800"
+		BorderThickness="1"
+        BorderBrush="{DynamicResource AccentColorBrush}"
+		Background="DimGray">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
@@ -19,12 +21,16 @@
         </Grid.RowDefinitions>
         
         <TextBlock Padding="10, 10, 10, 10" FontSize="25">Conflicting Particle Names</TextBlock>
-        <RichTextBox Grid.Row="1" Padding="10, 0, 10, 0" BorderThickness="0" IsReadOnly="True">
-            <FlowDocument>
-                <Paragraph Margin="0" Foreground="Gray">Compile Pal was unable to determine which file was being used due to multiple files containing the same particle names</Paragraph>
-                <Paragraph Margin="0" Foreground="Gray">Please select one or multiple PCFs to add to the manifest</Paragraph>
-            </FlowDocument>
-        </RichTextBox>
+		<RichTextBox Grid.Row="1" Padding="10, 0, 10, 0" BorderThickness="0" Background="DimGray" Foreground="White" IsReadOnly="True">
+			<FlowDocument>
+				<Paragraph Margin="0">
+					<Run Text="Compile Pal was unable to determine which file was being used due to multiple files containing the same particle names"/>
+				</Paragraph>
+				<Paragraph Margin="0">
+					<Run Text="Please select one or multiple PCFs to add to the manifest"/>
+				</Paragraph>
+			</FlowDocument>
+		</RichTextBox>
             
         <ListBox Grid.Row="2" x:Name="fileBox" SelectionMode="Extended" MinHeight="60" Height="200" Margin="10, 10, 10, 10" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1"></ListBox>
 

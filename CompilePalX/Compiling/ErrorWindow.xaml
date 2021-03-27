@@ -4,13 +4,14 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
         Title="Compile Pal X - Interlopers Error"
-                      IconEdgeMode="Aliased" Icon="../CompilePalIcon.ico" ShowIconOnTitleBar="False" 
-                      Height="500" Width="800"
-                      MinHeight="500" MinWidth="800"
-                      MaxHeight="500" MaxWidth="800" 
-                      BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" >
+        IconEdgeMode="Aliased" Icon="../CompilePalIcon.ico" ShowIconOnTitleBar="False"
+        Height="500" Width="800"
+        MinHeight="500" MinWidth="800"
+        MaxHeight="500" MaxWidth="800"
+		BorderThickness="1"
+        BorderBrush="{DynamicResource AccentColorBrush}"
+		Background="DimGray">
     <Grid>
         <WebBrowser Name="ErrorBrowser" Margin="0"/>
-
     </Grid>
 </controls:MetroWindow>

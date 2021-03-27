@@ -4,7 +4,10 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         Height="170" Width="320" MaxHeight="170" MinHeight="170" MaxWidth="320" MinWidth="320"
                       IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
-        Title="Input">
+        Title="Input"
+        BorderThickness="1" 
+        BorderBrush="{DynamicResource AccentColorBrush}"
+		Background="DimGray">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
