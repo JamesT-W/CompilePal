@@ -37,6 +37,9 @@ namespace CompilePalX
         {
             var allPresetMapNames = new List<string>();
 
+            if (!Directory.Exists(PresetsMapsFolder))
+                Directory.CreateDirectory(PresetsMapsFolder);
+
             // get all preset map names, as there is no knowledge of them at this point on startup
             var presetsMaps = Directory.GetDirectories(PresetsMapsFolder);
             foreach (string presetPath in presetsMaps)
