@@ -85,6 +85,9 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (!File.Exists(bspPath))
                 {
+                    CompilePalLogger.LogCompileError($"Make sure to add & enable the COPY process for '{CompilingManager.CurrentMapNameCompiling}' when enabling PACK\n",
+                        new Error($"Make sure to add & enable the COPY process for '{CompilingManager.CurrentMapNameCompiling}' when enabling PACK\n",
+                        ErrorSeverity.Error));
                     throw new FileNotFoundException();
                 }
 
