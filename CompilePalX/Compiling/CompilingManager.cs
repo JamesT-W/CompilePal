@@ -87,6 +87,7 @@ namespace CompilePalX
 
         private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
+        private static Stopwatch compileSpecificMapTimeStopwatch = new Stopwatch();
 
         public static bool IsCompiling { get; private set; }
 
@@ -112,6 +113,7 @@ namespace CompilePalX
             IsCompiling = true;
 
             compileTimeStopwatch.Start();
+            compileSpecificMapTimeStopwatch.Start();
 
             OnClear();
 
@@ -198,6 +200,11 @@ namespace CompilePalX
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
                     
                     GameConfigurationManager.RestoreCurrentContext();
+
+                    CompilePalLogger.LogLineColor(
+                        $"'{CurrentMapNameCompiling}' compile finished in {compileSpecificMapTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}\n", Brushes.ForestGreen);
+
+                    compileSpecificMapTimeStopwatch.Restart();
                 }
 
                 MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));
@@ -208,7 +215,7 @@ namespace CompilePalX
         private static void postCompile(List<MapErrors> errors)
         {
             CompilePalLogger.LogLineColor(
-	            $"\n'{CurrentMapNameCompiling}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"Finished compiling all maps in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {
@@ -249,6 +256,7 @@ namespace CompilePalX
             OnFinish();
 
             compileTimeStopwatch.Reset();
+            compileSpecificMapTimeStopwatch.Reset();
 
             IsCompiling = false;
 
