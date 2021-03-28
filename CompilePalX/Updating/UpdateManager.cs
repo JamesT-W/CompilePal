@@ -72,11 +72,11 @@ namespace CompilePalX
                 {
                     MainWindow.ActiveDispatcher.Invoke(OnUpdateFound);
 
-                    CompilePalLogger.LogLine("Updater found that Compile Pal is outdated.");
+                    CompilePalLogger.LogLine("Updater found that Compile Pal Multi is outdated.");
                 }
                 else
                 {
-                    CompilePalLogger.LogLine("Updater found that Compile Pal is up to date.");
+                    CompilePalLogger.LogLine("Updater found that Compile Pal Multi is up to date.");
                 }
 
                 ProgressManager.SetProgress(ProgressManager.Progress);

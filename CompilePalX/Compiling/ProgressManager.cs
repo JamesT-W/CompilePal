@@ -16,7 +16,7 @@ namespace CompilePalX
 
         private static TaskbarItemInfo taskbarInfo;
         private static bool ready;
-        private static string defaultTitle = "Compile Pal";
+        private static string defaultTitle = "Compile Pal Multi";
 
         static public void Init(TaskbarItemInfo _taskbarInfo)
         {
@@ -52,7 +52,7 @@ namespace CompilePalX
 
                     if (progress >= 1)
                     {
-                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {compileProcessName}");
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {compileProcessName} - {defaultTitle} {UpdateManager.CurrentVersion}");
 
                         System.Media.SystemSounds.Exclamation.Play();
                     }
@@ -64,7 +64,7 @@ namespace CompilePalX
                     }
                     else
                     {
-                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {compileProcessName}");
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {compileProcessName} - {defaultTitle} {UpdateManager.CurrentVersion}");
                     }
                 });
 

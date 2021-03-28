@@ -7,7 +7,7 @@
             xmlns:config="clr-namespace:CompilePalX.Configuration"
             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
 
-            Title="Compile Pal X"
+            Title="Compile Pal Multi"
             MinHeight="550" MinWidth="790"
             Height="550" Width="790"
             Closing="MetroWindow_Closing"

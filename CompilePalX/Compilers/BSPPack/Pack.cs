@@ -77,7 +77,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             try
             {
-                CompilePalLogger.LogLine("\nCompilePal - Automated Packaging");
+                CompilePalLogger.LogLine("\nCompilePalMulti - Automated Packaging");
                 bspZip = context.Configuration.BSPZip;
                 vpk = context.Configuration.VPK;
                 gameFolder = context.Configuration.GameFolder;
@@ -408,7 +408,7 @@ namespace CompilePalX.Compilers.BSPPack
             catch (Exception exception)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
+                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePalMulti Internal Error", ErrorSeverity.FatalError));
             }
         }
 

@@ -83,7 +83,7 @@ namespace CompilePalX.Compilers
 		{
             CompileErrors = new List<Error>();
 
-			CompilePalLogger.LogLine("\nCompilePal - " + Path);
+			CompilePalLogger.LogLine("\nCompilePalMulti - " + Path);
 
 			//Find filepath of program associated with filetype
 			//This is similar to using shellexecute, except we can read the output

@@ -16,7 +16,7 @@ namespace CompilePalX.Compilers
             // don't run unless it's the last map of the queue
             if (CompilingManager.MapFiles.Where(x => x.Value.Compile)?.Select(x => x.Value.File).LastOrDefault() == context.MapFile)
             {
-                CompilePalLogger.LogLine("\nCompilePal - Shutdown");
+                CompilePalLogger.LogLine("\nCompilePalMulti - Shutdown");
                 CompilePalLogger.LogLine("The system will shutdown soon.");
                 CompilePalLogger.LogLine("You can cancel this shutdown by using the command \"shutdown -a\"");
 

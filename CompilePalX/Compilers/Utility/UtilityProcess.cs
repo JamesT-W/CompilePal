@@ -49,7 +49,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             //TODO try to find a way to cut down on duplicate processes between utility and pack steps
             try
             {
-                CompilePalLogger.LogLine("\nCompilePal - Utilities");
+                CompilePalLogger.LogLine("\nCompilePalMulti - Utilities");
 
                 Keys.vmtTextureKeyWords =
                     File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
@@ -186,7 +186,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             catch (Exception e)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogCompileError($"{e}\n", new Error(e.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
+                CompilePalLogger.LogCompileError($"{e}\n", new Error(e.ToString(), "CompilePalMulti Internal Error", ErrorSeverity.FatalError));
             }
         }
 

@@ -136,7 +136,7 @@ namespace CompilePalX
             }
             else
             {
-				MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
+				MainWindow.Instance.Title = $"Compile Pal Multi {UpdateManager.CurrentVersion} {GameConfigurationManager.GameConfiguration.Name}";
             }
 
             Instance = null;

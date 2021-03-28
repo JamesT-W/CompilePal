@@ -30,7 +30,7 @@ namespace CompilePalX.Compilers
 
             try
             {
-                CompilePalLogger.LogLine("\nCompilePal - Nav Generator");
+                CompilePalLogger.LogLine("\nCompilePalMulti - Nav Generator");
 
                 if (!File.Exists(context.CopyLocation))
                 {
@@ -104,7 +104,7 @@ namespace CompilePalX.Compilers
             catch (Exception exception)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
+                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePalMulti Internal Error", ErrorSeverity.FatalError));
             }
         }
 
