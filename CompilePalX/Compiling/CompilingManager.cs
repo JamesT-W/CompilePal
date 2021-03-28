@@ -165,8 +165,11 @@ namespace CompilePalX
                         NextCompileProcess = allProcessesCompilingByMapName.Skip(1).FirstOrDefault();
 
                         // force it to show process name in taskbar if it is the first process of a map's compile
-                        if (ProgressManager.Progress % (1d / mapsToCompile.Count()) == 0)
+                        if (compileProcess.Name == allProcessesCompilingByMapName.FirstOrDefault().Name)
                             ProgressManager.SetProgress(ProgressManager.Progress, forceUseCompileTaskbar: true);
+                        // if there is a next compile process, force that to be used in the taskbar
+                        else if (NextCompileProcess != null)
+                            ProgressManager.SetProgress(ProgressManager.Progress, useNextCompileProcessName: true);
 
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
@@ -202,14 +205,10 @@ namespace CompilePalX
                                                             ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling]
                                                                 .ContainsKey(compileProcess.Name))
                         );
-
-                        // if there is a next compile process, force that to be used in the taskbar
-                        if (NextCompileProcess != null)
-                            ProgressManager.SetProgress(ProgressManager.Progress, useNextCompileProcessName: true); 
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
-                    
+
                     GameConfigurationManager.RestoreCurrentContext();
 
                     CompilePalLogger.LogLineColor(
