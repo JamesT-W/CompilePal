@@ -122,7 +122,6 @@ namespace CompilePalX
         }
 
         internal static CompileProcess CurrentCompileProcess;
-        internal static CompileProcess NextCompileProcess;
 
         private static void CompileThreaded()
         {
@@ -159,19 +158,13 @@ namespace CompilePalX
                     GameConfigurationManager.BackupCurrentContext();
 
                     var allProcessesCompilingByMapName = MainWindow.CompileProcessesSubList[mapPresetName].Where(x => x.Metadata.DoRun && ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].ContainsKey(x.Name));
-                    foreach (var compileProcess in allProcessesCompilingByMapName)
+                    for (int i = 0; i < allProcessesCompilingByMapName.Count(); i++)
                     {
-                        CurrentCompileProcess = compileProcess;
-                        NextCompileProcess = allProcessesCompilingByMapName.Skip(1).FirstOrDefault();
+                        CurrentCompileProcess = allProcessesCompilingByMapName.ElementAt(i);
 
-                        // force it to show process name in taskbar if it is the first process of a map's compile
-                        if (compileProcess.Name == allProcessesCompilingByMapName.FirstOrDefault().Name)
-                            ProgressManager.SetProgress(ProgressManager.Progress, forceUseCompileTaskbar: true);
-                        // if there is a next compile process, force that to be used in the taskbar
-                        else if (NextCompileProcess != null)
-                            ProgressManager.SetProgress(ProgressManager.Progress, useNextCompileProcessName: true);
+                        ProgressManager.SetProgress(ProgressManager.Progress, true);
 
-                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
+                        CurrentCompileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
                         compileErrors.AddRange(CurrentCompileProcess.CompileErrors);
 
@@ -203,7 +196,7 @@ namespace CompilePalX
                                                         .SelectMany(x => x.Value)
                                                         .Count(c => c.Metadata.DoRun &&
                                                             ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling]
-                                                                .ContainsKey(compileProcess.Name))
+                                                                .ContainsKey(CurrentCompileProcess.Name))
                         );
                     }
 

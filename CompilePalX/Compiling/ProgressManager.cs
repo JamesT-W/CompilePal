@@ -37,7 +37,7 @@ namespace CompilePalX
             set { SetProgress(value); }
         }
 
-        static public void SetProgress(double progress, bool forceUseCompileTaskbar = false, bool useNextCompileProcessName = false)
+        static public void SetProgress(double progress, bool forceUseCompileTaskbar = false)
         {
             if (ready)
             {
@@ -48,7 +48,7 @@ namespace CompilePalX
                     taskbarInfo.ProgressValue = progress;
                     ProgressChange(progress * 100);
 
-                    var compileProcessName = useNextCompileProcessName ? CompilingManager.NextCompileProcess : CompilingManager.CurrentCompileProcess;
+                    var compileProcessName = CompilingManager.CurrentCompileProcess;
 
                     if (progress >= 1)
                     {
