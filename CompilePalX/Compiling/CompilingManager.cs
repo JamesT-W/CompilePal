@@ -133,7 +133,7 @@ namespace CompilePalX
 
                 var mapErrors = new List<MapErrors>();
 
-                var mapsToCompile = MapFiles.Where(x => x.Value != null && x.Value.Compile).Where(x => ConfigurationManager.KnownPresetsMaps.Any(y => y == x.Key)).OrderByDescending(x => x.Key).Select(x => x.Key).ToList();
+                var mapsToCompile = MapFiles.Where(x => x.Value != null && x.Value.Compile).Where(x => ConfigurationManager.KnownPresetsMaps.Any(y => y == x.Key)).OrderBy(x => x.Key).Select(x => x.Key).ToList();
                 foreach (var mapPresetName in mapsToCompile)
                 {
                     CurrentMapNameCompiling = mapPresetName;
