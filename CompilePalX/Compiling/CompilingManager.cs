@@ -88,6 +88,7 @@ namespace CompilePalX
         private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
         private static Stopwatch compileSpecificMapTimeStopwatch = new Stopwatch();
+        private static Stopwatch compileSpecificProcessTimeStopwatch = new Stopwatch();
 
         public static bool IsCompiling { get; private set; }
 
@@ -114,6 +115,7 @@ namespace CompilePalX
 
             compileTimeStopwatch.Start();
             compileSpecificMapTimeStopwatch.Start();
+            compileSpecificProcessTimeStopwatch.Start();
 
             OnClear();
 
@@ -198,6 +200,11 @@ namespace CompilePalX
                                                             ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling]
                                                                 .ContainsKey(CurrentCompileProcess.Name))
                         );
+
+                        CompilePalLogger.LogLineColor(
+                            $"'{CurrentCompileProcess.Name}' finished for '{CurrentMapNameCompiling}' in {compileSpecificProcessTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}\n", Brushes.ForestGreen);
+
+                        compileSpecificProcessTimeStopwatch.Restart();
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
@@ -260,6 +267,7 @@ namespace CompilePalX
 
             compileTimeStopwatch.Reset();
             compileSpecificMapTimeStopwatch.Reset();
+            compileSpecificProcessTimeStopwatch.Reset();
 
             IsCompiling = false;
 
