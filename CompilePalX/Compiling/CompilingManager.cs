@@ -86,9 +86,10 @@ namespace CompilePalX
         public static ObservableDictionary<string, Map> MapFiles = new ObservableDictionary<string, Map>();
 
         private static Thread compileThread;
-        private static Stopwatch compileTimeStopwatch = new Stopwatch();
-        private static Stopwatch compileSpecificMapTimeStopwatch = new Stopwatch();
-        private static Stopwatch compileSpecificProcessTimeStopwatch = new Stopwatch();
+        private static readonly Stopwatch compileTimeStopwatch = new Stopwatch();
+        private static readonly Stopwatch compileSpecificMapTimeStopwatch = new Stopwatch();
+        private static readonly Stopwatch compileSpecificProcessTimeStopwatch = new Stopwatch();
+        private static Dictionary<string, List<string>> allCompileTimes = new Dictionary<string, List<string>>();
 
         public static bool IsCompiling { get; private set; }
 
@@ -116,6 +117,7 @@ namespace CompilePalX
             compileTimeStopwatch.Start();
             compileSpecificMapTimeStopwatch.Start();
             compileSpecificProcessTimeStopwatch.Start();
+            allCompileTimes = new Dictionary<string, List<string>>();
 
             OnClear();
 
@@ -159,6 +161,8 @@ namespace CompilePalX
 
                     GameConfigurationManager.BackupCurrentContext();
 
+                    var processCompileTimes = new List<string>();
+
                     var allProcessesCompilingByMapName = MainWindow.CompileProcessesSubList[mapPresetName].Where(x => x.Metadata.DoRun && ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].ContainsKey(x.Name));
                     for (int i = 0; i < allProcessesCompilingByMapName.Count(); i++)
                     {
@@ -201,8 +205,10 @@ namespace CompilePalX
                                                                 .ContainsKey(CurrentCompileProcess.Name))
                         );
 
+                        var elapsedProcessCompileTime = compileSpecificProcessTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss");
+                        processCompileTimes.Add($"{CurrentCompileProcess.Name} - {elapsedProcessCompileTime}");
                         CompilePalLogger.LogLineColor(
-                            $"'{CurrentCompileProcess.Name}' finished for '{CurrentMapNameCompiling}' in {compileSpecificProcessTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}\n", Brushes.ForestGreen);
+                            $"'{CurrentCompileProcess.Name}' finished for '{CurrentMapNameCompiling}' in {elapsedProcessCompileTime}\n", Brushes.ForestGreen);
 
                         compileSpecificProcessTimeStopwatch.Restart();
                     }
@@ -214,6 +220,9 @@ namespace CompilePalX
                     CompilePalLogger.LogLineColor(
                         $"'{CurrentMapNameCompiling}' compile finished in {compileSpecificMapTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}\n", Brushes.ForestGreen);
 
+                    var elapsedMapCompileTime = compileSpecificMapTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss");
+                    allCompileTimes.Add($"{CurrentMapNameCompiling} finished in {elapsedMapCompileTime}", processCompileTimes);
+
                     compileSpecificMapTimeStopwatch.Restart();
                 }
 
@@ -224,8 +233,20 @@ namespace CompilePalX
 
         private static void postCompile(List<MapErrors> errors)
         {
+            CompilePalLogger.LogLine("================================================\n");
+
             CompilePalLogger.LogLineColor(
-	            $"Finished compiling all maps in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"Finished compiling all maps in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}\n", Brushes.ForestGreen);
+
+            foreach (var compileTimes in allCompileTimes)
+            {
+                CompilePalLogger.LogLineColor(compileTimes.Key, Brushes.ForestGreen);
+
+                foreach (var processTime in compileTimes.Value)
+                    CompilePalLogger.LogLineColor($"\t{processTime}", Brushes.ForestGreen);
+
+                CompilePalLogger.LogLine();
+            }
 
             if (errors != null && errors.Any())
             {
