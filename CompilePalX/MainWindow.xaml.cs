@@ -531,6 +531,8 @@ namespace CompilePalX
 
                 PresetMapConfigListBox.SelectedItem = PresetMapConfigListBox.ItemsSource.Cast<PresetMapCheckbox>().FirstOrDefault(x => x.PresetMap == presetMapName);
                 SetPreviousPresetMapSelectedItem(PresetMapConfigListBox.SelectedItem);
+
+                c.ChosenItem = null;
             }
         }
 

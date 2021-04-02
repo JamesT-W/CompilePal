@@ -331,11 +331,11 @@ namespace CompilePalX
                         }
                     }
                 }
+
+                CompilingManager.MapFiles.Add(name, null);
+
+                AssembleParameters();
             }
-
-            CompilingManager.MapFiles.Add(name, null);
-
-            AssembleParameters();
         }
 
         public static void ClonePresetMap(string nameUnchecked)
