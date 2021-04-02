@@ -833,6 +833,11 @@ namespace CompilePalX
             OutputTab.Focus();
         }
 
+        private void GetPlaySoundOnCompilesFinished(object sender, RoutedEventArgs e)
+        {
+            ProgressManager.PlaySoundOnCompilesFinished = !ProgressManager.PlaySoundOnCompilesFinished;
+        }
+
         private void UpdateLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             Process.Start("http://www.github.com/JamesT-W/CompilePal/releases/latest");

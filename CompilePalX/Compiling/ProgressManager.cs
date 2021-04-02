@@ -18,6 +18,8 @@ namespace CompilePalX
         private static bool ready;
         private static string defaultTitle = "Compile Pal Multi";
 
+
+        public static bool PlaySoundOnCompilesFinished = false; // set true as default by GetPlaySoundOnCompilesFinished()
         static public void Init(TaskbarItemInfo _taskbarInfo)
         {
             taskbarInfo = _taskbarInfo;
@@ -54,7 +56,8 @@ namespace CompilePalX
                     {
                         TitleChange($"{Math.Floor(progress * 100d)}% - {CompilingManager.CurrentMapNameCompiling} - {compileProcessName} - {defaultTitle} {UpdateManager.CurrentVersion}");
 
-                        System.Media.SystemSounds.Exclamation.Play();
+                        if (PlaySoundOnCompilesFinished)
+                            System.Media.SystemSounds.Exclamation.Play();
                     }
                     else if (progress <= 0 && !forceUseCompileTaskbar)
                     {
