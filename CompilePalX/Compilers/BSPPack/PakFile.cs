@@ -50,7 +50,7 @@ namespace CompilePalX.Compilers.BSPPack
 	    private List<string> excludedDirs;
         private List<string> excludedVpkFiles;
 
-        private List<string> sourceDirs;
+        private static List<string> sourceDirs;
         private string fileName;
 
         public int mdlcount { get; private set; }
@@ -372,14 +372,17 @@ namespace CompilePalX.Compilers.BSPPack
             }
         }
 
-        private string FindExternalFile(string internalPath)
+        internal static string FindExternalFile(string internalPath, List<string> sourceDirectories = null)
         {
             // Attempts to find the file from the internalPath
             // returns the externalPath or an empty string
 
-	        var sanitizedPath = SanitizePath(internalPath);
+            if (sourceDirectories == null)
+                sourceDirectories = sourceDirs;
 
-			foreach (string source in sourceDirs)
+            var sanitizedPath = SanitizePath(internalPath);
+
+			foreach (string source in sourceDirectories)
                 if (File.Exists(source +"/"+ sanitizedPath))
                     return source + "/" + sanitizedPath.Replace("\\", "/");
             return "";
@@ -387,7 +390,7 @@ namespace CompilePalX.Compilers.BSPPack
 
 		private static readonly string invalidChars = Regex.Escape(new string(Path.GetInvalidPathChars()));
 		private static readonly string invalidRegString = $@"([{invalidChars}]*\.+$)|([{invalidChars}]+)";
-		private string SanitizePath(string path)
+		private static string SanitizePath(string path)
 	    {
 		    return Regex.Replace(path, invalidRegString, "");
 	    }

@@ -1,1 +1,3 @@
  -threads,
+ -autoviscluster,512
+ -blocksize,2048

@@ -936,6 +936,55 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
             }
+
+            // look for scripts referenced in other scripts using IncludeScript or DoIncludeScript
+            // will not work if multiple IncludeScript or DoIncludeScript are done on the same line
+            var vscriptsParsing = new List<string>();
+            vscriptsParsing.AddRange(vscripts);
+
+            while (vscriptsParsing.Count() > 0)
+            {
+                Regex lineComments = new Regex(@"//(.*?)\r?\n"); //////// TODO: currently does not remove single line comments ??
+                Regex blockComments = new Regex(@"/\*(.*?)\*/");
+
+                var vscriptsFound = new List<string>();
+
+                foreach (var vscript in vscriptsParsing)
+                {
+                    var filepath = PakFile.FindExternalFile(vscript, sourceDirectories);
+                    if (string.IsNullOrWhiteSpace(filepath))
+                        continue;
+
+                    var lines = File.ReadAllLines(filepath);
+                    foreach (var line in lines)
+                    {
+                        // remove comments
+                        string regexedLine = lineComments.Replace(line, ""); //////// TODO: currently does not remove single line comments ??
+                        regexedLine = blockComments.Replace(regexedLine, "");
+
+                        // continue if whitespace
+                        if (string.IsNullOrWhiteSpace(regexedLine))
+                            continue;
+
+                        // split the line to see if it includes a script
+                        var splits = regexedLine.Split(new string[] { "DoIncludeScript(\"", "IncludeScript(\"" }, StringSplitOptions.None).ToList();
+                        if (splits.Count() > 1)
+                        {
+                            if (!splits[0].Contains("//"))
+                            {
+                                var correctSplit = splits[1];
+
+                                var path = correctSplit.Split('\"').FirstOrDefault();
+                                vscriptsFound.Add(("scripts/vscripts/" + path).Replace("//", "/"));
+                            }
+                        }
+                    }
+                }
+
+                vscriptsParsing = vscriptsFound;
+                vscripts.AddRange(vscriptsFound);
+            }
+
             bsp.vscriptList = vscripts;
         }
 
