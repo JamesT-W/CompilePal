@@ -20,12 +20,12 @@ All Compile Pal changes will be integrated into Compile Pal Multi
 
 #### Latest Release
 
-[Compile Pal Multi V2](https://github.com/JamesT-W/CompilePal/releases/latest)
+[Compile Pal Multi V3](https://github.com/JamesT-W/CompilePal/releases/latest)
 
 #### Experimental Releases
 Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
 
-[Compile Pal Multi V2.1](https://github.com/JamesT-W/CompilePal/releases/tag/v002.1)
+[Compile Pal Multi V3](https://github.com/JamesT-W/CompilePal/releases/tag/v003.0)
 
 
 ## Features
