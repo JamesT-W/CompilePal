@@ -210,7 +210,7 @@
   {
     "Name": "Auto Viscluster",
     "Parameter": " -autoviscluster",
-    "Description": "Defines the grid size to automatically cluster visleaves on. By default, this is not performed.",
+    "Description": "Defines the grid size to automatically cluster visleaves on. By default, this is not performed. Used on Danger Zone maps.",
     "Value": null,
     "CanHaveValue": true,
     "Warning": "CS:GO Only!"
@@ -218,7 +218,7 @@
   {
     "Name": "Block Size",
     "Parameter": " -blocksize",
-    "Description": "Defines the grid size for automatically cutting visleaves (on the X and Y axis). Set to 1024 by default.",
+    "Description": "Defines the grid size for automatically cutting visleaves (on the X and Y axis). Set to 1024 by default. Used on Danger Zone maps.",
     "Value": null,
     "CanHaveValue": true,
     "Warning": "CS:GO Only!"
