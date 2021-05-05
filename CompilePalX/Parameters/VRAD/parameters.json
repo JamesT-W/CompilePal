@@ -211,7 +211,7 @@
   {
     "Name": "LeafAmbientSampleReduction",
     "Parameter": " -LeafAmbientSampleReduction",
-    "Description": "Used on Danger Zone maps",
+    "Description": "Alters the amount neighbouring ambient samples can differ by when being collapsed together. Used on Danger Zone maps to avoid hitting engine limits",
     "Value": null,
     "CanHaveValue": true,
     "Warning": ""
