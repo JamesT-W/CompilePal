@@ -210,7 +210,7 @@
   {
     "Name": "Auto Viscluster",
     "Parameter": " -autoviscluster",
-    "Description": "Defines the grid size to automatically clusters visleaves on.",
+    "Description": "Defines the grid size to automatically cluster visleaves on. By default, this is not performed.",
     "Value": null,
     "CanHaveValue": true,
     "Warning": "CS:GO Only!"
@@ -218,7 +218,7 @@
   {
     "Name": "Block Size",
     "Parameter": " -blocksize",
-    "Description": "Defines the grid size to automatically cut visleaves on. Set to 1024 by default.",
+    "Description": "Defines the grid size for automatically cutting visleaves (on the X and Y axis). Set to 1024 by default.",
     "Value": null,
     "CanHaveValue": true,
     "Warning": "CS:GO Only!"
