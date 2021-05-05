@@ -754,6 +754,8 @@ namespace CompilePalX
 
         void UpdateParameterTextBox()
         {
+            ConfigurationManager.SavePresetsMaps();
+
             if (selectedProcess == null)
                 ParametersTextBox.Text = string.Empty;
             else
