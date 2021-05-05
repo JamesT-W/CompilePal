@@ -269,6 +269,15 @@ namespace CompilePalX.Compilers.BSPPack
 					}
 	            }
 
+                // special condition for env_smokestack
+                if (ent["classname"].Contains("env_smokestack"))
+				{
+                    if (ent.ContainsKey("SmokeMaterial"))
+                    {
+                        materials.Add(ent["SmokeMaterial"]);
+                    }
+				}
+
 				// pack IO triggered screen_overlay materials
 				var screenOverlays = ent.Values.Where((e) => e.Contains("r_screenoverlay"));
 				if (screenOverlays.Any())

@@ -25,7 +25,7 @@ All Compile Pal changes will be integrated into Compile Pal Multi
 #### Experimental Releases
 Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
 
-[Compile Pal Multi V2.0](https://github.com/JamesT-W/CompilePal/releases/tag/v002.0)
+[Compile Pal Multi V2.1](https://github.com/JamesT-W/CompilePal/releases/tag/v002.1)
 
 
 ## Features
