@@ -7,12 +7,15 @@
 </p>
 
 <p align="center">Compile Pal Multi is based off the original Compile Pal and allows for an alternate map based packing workflow.</p>
-
-Original Compile Pal UI
-![ui](https://i.imgur.com/DvAVPeR.png)
+<br/>
+<p align="center">When updating to a newer version, copy over your PresetsMaps folder & mapfiles.json file.</p>
+<br/>
 
 Compile Pal Multi UI
 ![ui](https://i.imgur.com/n3llzSS.png)
+
+Original Compile Pal UI
+![ui](https://i.imgur.com/DvAVPeR.png)
 
 
 ## Downloads
