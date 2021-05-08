@@ -759,6 +759,19 @@ namespace CompilePalX
 
             if (currentIndex < CompileProcessesListBox.Items.Count && currentIndex >= 0)
                 CompileProcessesListBox.SelectedIndex = currentIndex;
+
+            // CompilePalMulti v003.1 changes brought differences to the mapfiles.json file. We need to automatically update that file for PresetsMaps created on previous versions
+            if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes == null)
+                CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes = new Dictionary<string, MapProcess>();
+
+            foreach (var process in CompileProcessesSubList[ConfigurationManager.CurrentPresetMap])
+			{
+                if (!CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Any(x => x.Key == process.Name))
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Add(process.Name, new MapProcess());
+            }
+
+            PersistenceManager.ForceMapFilesWrite();
+            //
         }
 
         void UpdateParameterTextBox()

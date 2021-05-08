@@ -51,7 +51,7 @@ namespace CompilePalX
         {
             File = file;
             Compile = compile;
-            Processes = processes;
+            Processes = processes != null ? processes : new Dictionary<string, MapProcess>();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
