@@ -80,9 +80,10 @@
                         <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <DockPanel HorizontalAlignment="Stretch">
-                                        <TextBlock Text="{Binding}" Margin="0, 0, 5, 0"/>
-                                        <CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick"/>
+									<DockPanel HorizontalAlignment="Stretch">
+										<TextBlock Text="{Binding}" Margin="0, 0, 5, 0"/>
+										<TextBlock Text="{Binding PreviousTimeTaken, Mode=OneWay}" Margin="0, 0, 5, 0"/> <!--TextAlignment="Right"-->
+										<CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick"/>
                                     </DockPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>

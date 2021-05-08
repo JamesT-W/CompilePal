@@ -129,7 +129,7 @@ namespace CompilePalX
                 SelectMapButton.IsEnabled = false;
                 ClearMapButton.IsEnabled = false;
             }
-            else if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
+            else if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File != null)
             {
                 SelectMapButton.IsEnabled = false;
                 ClearMapButton.IsEnabled = true;
@@ -297,13 +297,14 @@ namespace CompilePalX
                     var map = CompilingManager.MapFiles[presetMap];
                     var file = map == null ? string.Empty : map.File;
                     var compile = map != null && map.Compile;
-                    presetMapItemSources.Add(new PresetMapCheckbox(presetMap, file, compile));
+                    var processes = (map == null || map.Processes == null || map.Processes.Count() == 0) ? new Dictionary<string, MapProcess>() : map.Processes;
+                    presetMapItemSources.Add(new PresetMapCheckbox(presetMap, file, compile, processes));
                 }
 
                 PresetMapConfigListBox.ItemsSource = presetMapItemSources;
             }
 
-            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null)
+            MapListBox.ItemsSource = (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File == null)
                                         ? new ObservableCollection<Map>()
                                         : new ObservableCollection<Map>() { CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] };
 
@@ -479,6 +480,10 @@ namespace CompilePalX
                     ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Add(ChosenProcess.Name, new ObservableCollection<ConfigItem>());
 
                     ConfigurationManager.SavePresetsMaps();
+
+                    // processes in mapfiles.json
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Add(ChosenProcess.Name, new MapProcess());
+                    PersistenceManager.ForceMapFilesWrite();
                 }
             }
 
@@ -498,6 +503,10 @@ namespace CompilePalX
                 CompileProcess removed = (CompileProcess)CompileProcessesListBox.SelectedItem;
                 ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap].Remove(removed.Name);
                 ConfigurationManager.RemoveProcess(removed.ToString());
+
+                // processes in mapfiles.json
+                CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Remove(removed.Name);
+                PersistenceManager.ForceMapFilesWrite();
             }
             UpdateProcessList();
             CompileProcessesListBox.SelectedIndex = 0;
@@ -706,8 +715,8 @@ namespace CompilePalX
 
 					ConfigDataGrid.ItemsSource = ConfigurationManager.PresetMapDictionary[ConfigurationManager.CurrentPresetMap][selectedProcess.Name];
 
-					//Make buttons visible if they were disabled
-		            if (!AddParameterButton.IsEnabled)
+                    //Make buttons visible if they were disabled
+                    if (!AddParameterButton.IsEnabled)
 		            {
 						AddParameterButton.Visibility = Visibility.Visible;
 						AddParameterButton.IsEnabled = true;
@@ -770,7 +779,7 @@ namespace CompilePalX
         private void SelectMapButton_Click(object sender, RoutedEventArgs e)
         {
             // do not allow more than one map file for each map preset
-            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
+            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File != null)
                 return;
 
             var dialog = new OpenFileDialog();
@@ -798,13 +807,9 @@ namespace CompilePalX
             if (file == null)
                 return;
 
-            // remove and add new to avoid exception
-            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap))
-            {
-                CompilingManager.MapFiles.Remove(ConfigurationManager.CurrentPresetMap);
-            }
-            CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, new Map(file));
-            
+            CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File = file;
+            PersistenceManager.ForceMapFilesWrite();
+
             SelectMapButton.IsEnabled = false;
             ClearMapButton.IsEnabled = true;
 
@@ -817,9 +822,8 @@ namespace CompilePalX
             if (!CompilingManager.MapFiles.Any() || !CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) || CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null)
                 return;
 
-            // remove and add new to avoid exception
-            CompilingManager.MapFiles.Remove(ConfigurationManager.CurrentPresetMap);
-            CompilingManager.MapFiles.Add(ConfigurationManager.CurrentPresetMap, null);
+            CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File = null;
+            PersistenceManager.ForceMapFilesWrite();
 
             SelectMapButton.IsEnabled = true;
             ClearMapButton.IsEnabled = false;
@@ -835,6 +839,8 @@ namespace CompilePalX
             CompileStartStopButton.Content = (string)CompileStartStopButton.Content == "Compile" ? "Cancel" : "Compile";
 
             OutputTab.Focus();
+
+            UpdateProcessList(); // used for updating the PreviousTimeTaken values shown next to each Process
         }
 
         private void GetPlaySoundOnCompilesFinished(object sender, RoutedEventArgs e)
@@ -884,9 +890,38 @@ namespace CompilePalX
 	    {
 			if (processModeEnabled)
 				OrderManager.UpdateOrder();
-		}
 
-	    private void OrderGrid_OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+            // Uses Reflection because DataContext can be different Types
+            var dataContext = ((CheckBox)e.Source).DataContext;
+            var dataContextType = dataContext.GetType();
+            System.Reflection.PropertyInfo pi = dataContext.GetType().GetProperty("Name");
+
+            var processName = (string)pi.GetValue(dataContext, null);
+
+            if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
+            {
+                if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes == null)
+                {
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes = new Dictionary<string, MapProcess>();
+                }
+
+                // add new MapProcess if doesn't exist already
+                if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Count() == 0 ||
+                    !CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Keys.Any(x => x == processName)
+                )
+                {
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Add(processName, new MapProcess());
+                }
+
+                // set the do run values
+                var process = CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes[processName];
+                process.DoRun = (bool)((CheckBox)e.Source).IsChecked;
+
+                PersistenceManager.ForceMapFilesWrite();
+            }
+        }
+
+        private void OrderGrid_OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
 	    {
 			if (processModeEnabled)
 				OrderManager.UpdateOrder();
@@ -1030,6 +1065,13 @@ namespace CompilePalX
             set { compile = value; OnPropertyChanged(nameof(Compile)); }
         }
 
+        private Dictionary<string, MapProcess> processes;
+        public Dictionary<string, MapProcess> Processes
+        {
+            get => processes;
+            set { processes = value; OnPropertyChanged(nameof(Processes)); }
+        }
+
         public bool Enabled
         {
             get { return !string.IsNullOrWhiteSpace(File); }
@@ -1040,11 +1082,12 @@ namespace CompilePalX
             get { return string.IsNullOrWhiteSpace(File) ? Visibility.Hidden : Visibility.Visible; }
         }
 
-        public PresetMapCheckbox(string presetMap, string file, bool compile)
+        public PresetMapCheckbox(string presetMap, string file, bool compile, Dictionary<string, MapProcess> processes)
         {
             PresetMap = presetMap;
             File = file;
             Compile = compile;
+            Processes = processes;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

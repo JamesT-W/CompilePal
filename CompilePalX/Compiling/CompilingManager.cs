@@ -27,7 +27,6 @@ namespace CompilePalX
     class Map : INotifyPropertyChanged
     {
         private string file;
-
         public string File
         {
             get => file;
@@ -41,10 +40,49 @@ namespace CompilePalX
             set { compile = value; OnPropertyChanged(nameof(Compile)); }
         }
 
-        public Map(string file, bool compile = true)
+        private Dictionary<string, MapProcess> processes;
+        public Dictionary<string, MapProcess> Processes
+        {
+            get => processes;
+            set { processes = value; OnPropertyChanged(nameof(Processes)); }
+        }
+
+        public Map(string file = null, bool compile = true, Dictionary<string, MapProcess> processes = null)
         {
             File = file;
             Compile = compile;
+            Processes = processes;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class MapProcess : INotifyPropertyChanged
+    {
+        private bool doRun;
+        public bool DoRun
+        {
+            get => doRun;
+            set { doRun = value; OnPropertyChanged(nameof(DoRun)); }
+        }
+
+        private string previousTimeTaken;
+        public string PreviousTimeTaken
+        {
+            get => previousTimeTaken;
+            set { previousTimeTaken = value; OnPropertyChanged(nameof(PreviousTimeTaken)); }
+        }
+
+        public MapProcess(bool doRun = true, string previousTimeTaken = null)
+        {
+            DoRun = doRun;
+            PreviousTimeTaken = previousTimeTaken;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -163,7 +201,7 @@ namespace CompilePalX
 
                     var processCompileTimes = new List<string>();
 
-                    var allProcessesCompilingByMapName = MainWindow.CompileProcessesSubList[mapPresetName].Where(x => x.Metadata.DoRun && ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].ContainsKey(x.Name));
+                    var allProcessesCompilingByMapName = MainWindow.CompileProcessesSubList[mapPresetName].Where(x => ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling].ContainsKey(x.Name)).Where(x => MapFiles[CurrentMapNameCompiling].Processes[x.Name].DoRun); // do not use Metadata.DoRun as this gives default values on load
                     for (int i = 0; i < allProcessesCompilingByMapName.Count(); i++)
                     {
                         CurrentCompileProcess = allProcessesCompilingByMapName.ElementAt(i);
@@ -200,7 +238,7 @@ namespace CompilePalX
                                                             && MapFiles[x.Key] != null
                                                             && MapFiles[x.Key].Compile)
                                                         .SelectMany(x => x.Value)
-                                                        .Count(c => c.Metadata.DoRun &&
+                                                        .Count(c => MapFiles[CurrentMapNameCompiling].Processes[c.Name].DoRun &&
                                                             ConfigurationManager.PresetMapDictionary[CurrentMapNameCompiling]
                                                                 .ContainsKey(CurrentCompileProcess.Name))
                         );
@@ -209,6 +247,25 @@ namespace CompilePalX
                         processCompileTimes.Add($"{CurrentCompileProcess.Name} - {elapsedProcessCompileTime}");
                         CompilePalLogger.LogLineColor(
                             $"'{CurrentCompileProcess.Name}' finished for '{CurrentMapNameCompiling}' in {elapsedProcessCompileTime}\n", Brushes.ForestGreen);
+
+                        // add if don't exist
+                        if (MapFiles[CurrentMapNameCompiling].Processes == null)
+                        {
+                            MapFiles[CurrentMapNameCompiling].Processes = new Dictionary<string, MapProcess>();
+                        }
+
+                        if (MapFiles[CurrentMapNameCompiling].Processes.Count() == 0 ||
+                            !MapFiles[CurrentMapNameCompiling].Processes.Keys.Any(x => x == CurrentCompileProcess.Name)
+                        )
+                        {
+                            MapFiles[CurrentMapNameCompiling].Processes.Add(CurrentCompileProcess.Name, new MapProcess());
+                        }
+
+                        // set the previous process times taken values
+                        var process = MapFiles[CurrentMapNameCompiling].Processes[CurrentCompileProcess.Name];
+                        process.PreviousTimeTaken = elapsedProcessCompileTime;
+
+                        PersistenceManager.ForceMapFilesWrite();
 
                         compileSpecificProcessTimeStopwatch.Restart();
                     }

@@ -51,10 +51,7 @@ namespace CompilePalX
 
             }
 
-
-
             ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.DoRun);
-
         }
 
         public static CompileMetadata LoadLegacyData(string csvFile)
@@ -82,7 +79,67 @@ namespace CompilePalX
         public string PresetFile { get { return Metadata.Name + ".csv"; } }
 
         public double Ordering { get { return Metadata.Order; } }
-        public bool DoRun { get { return Metadata.DoRun; } set { Metadata.DoRun = value; } }
+
+        // not actually from metadata, only used to display inside CompileProcessesListBox
+        public string PreviousTimeTaken {
+            get
+            {
+                if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null ||
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes == null ||
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes[Metadata.Name] == null ||
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes[Metadata.Name].PreviousTimeTaken == null
+                )
+                    return null;
+
+                return string.Concat("(", CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes[Metadata.Name].PreviousTimeTaken, ")");
+            }
+        }
+
+        public bool DoRun
+        {
+            get
+            {
+                if (CompilingManager.MapFiles == null ||
+                    CompilingManager.MapFiles.Count() == 0 ||
+                    !CompilingManager.MapFiles.Any(x => x.Key == ConfigurationManager.CurrentPresetMap) ||
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null ||
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Count() == 0 ||
+                    !CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Any(x => x.Key == Metadata.Name) ||
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes[Metadata.Name] == null
+                )
+                    return Metadata.DoRun;
+                else
+                    return CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes[Metadata.Name].DoRun;
+            }
+            set
+            {
+                Metadata.DoRun = value;
+
+                if (CompilingManager.MapFiles == null ||
+                    CompilingManager.MapFiles.Count() == 0 ||
+                    !CompilingManager.MapFiles.Any(x => x.Key == ConfigurationManager.CurrentPresetMap) ||
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] == null
+                )
+                {
+                    return;
+                }
+
+                if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes == null)
+                {
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes = new Dictionary<string, MapProcess>();
+                }
+
+                if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Count() == 0 ||
+                    !CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Keys.Any(x => x == Metadata.Name)
+                )
+                {
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Add(Metadata.Name, new MapProcess());
+                }
+
+
+                CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes[Metadata.Name].DoRun = value;
+            }
+        }
         public string Name { get { return Metadata.Name; } }
         public string Description { get { return Metadata.Description; } }
         public string Warning { get { return Metadata.Warning; } }

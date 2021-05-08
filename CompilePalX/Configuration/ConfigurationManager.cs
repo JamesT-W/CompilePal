@@ -328,11 +328,26 @@ namespace CompilePalX
                             string path = Path.ChangeExtension(Path.Combine(folder, process.Key), "csv");
                             string presetPath = Path.ChangeExtension(Path.Combine(PresetsFolder, preset.Key, process.Key), "csv");
                             File.Copy(presetPath, path);
+
+
+                            // processes in mapfiles.json
+                            if (CompilingManager.MapFiles.Count() == 0 ||
+                                !CompilingManager.MapFiles.Any(x => x.Key == CurrentPresetMap)
+                            )
+                            {
+                                CompilingManager.MapFiles.Add(CurrentPresetMap, new Map());
+                            }
+
+                            if (CompilingManager.MapFiles[CurrentPresetMap].Processes == null)
+                                CompilingManager.MapFiles[CurrentPresetMap].Processes = new Dictionary<string, MapProcess>();
+
+
+                            CompilingManager.MapFiles[CurrentPresetMap].Processes.Add(process.Key, new MapProcess());
+
+                            PersistenceManager.ForceMapFilesWrite();
                         }
                     }
                 }
-
-                CompilingManager.MapFiles.Add(name, null);
 
                 AssembleParameters();
             }
@@ -344,10 +359,23 @@ namespace CompilePalX
 
             var increment = GetIncrementValueByCheckingForFilenameMatches(newFolderUnchecked);
             string newFolder = increment == 0 ? newFolderUnchecked : string.Concat(newFolderUnchecked, $"({increment})");
+            string name = increment == 0 ? nameUnchecked : string.Concat(nameUnchecked, $"({increment})");
 
             string oldFolder = Path.Combine(PresetsMapsFolder, CurrentPresetMap);
             if (!Directory.Exists(newFolder))
             {
+                // processes in mapfiles.json
+                var mapFileCloning = CompilingManager.MapFiles[CurrentPresetMap];
+                CompilingManager.MapFiles.Add(name, new Map(mapFileCloning.File, mapFileCloning.Compile, new Dictionary<string, MapProcess>()));
+
+                var mapFileNew = CompilingManager.MapFiles[name];
+                foreach (var process in mapFileCloning.Processes)
+                {
+                    mapFileNew.Processes.Add(process.Key, new MapProcess(process.Value.DoRun, null));
+                }
+
+                PersistenceManager.ForceMapFilesWrite();
+
                 SavePresetsMaps();
 
                 DirectoryCopy(oldFolder, newFolder, true);
