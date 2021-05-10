@@ -761,16 +761,19 @@ namespace CompilePalX
                 CompileProcessesListBox.SelectedIndex = currentIndex;
 
             // CompilePalMulti v003.1 changes brought differences to the mapfiles.json file. We need to automatically update that file for PresetsMaps created on previous versions
-            if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes == null)
-                CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes = new Dictionary<string, MapProcess>();
+            if (!string.IsNullOrWhiteSpace(ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null)
+            {
+                if (CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes == null)
+                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes = new Dictionary<string, MapProcess>();
 
-            foreach (var process in CompileProcessesSubList[ConfigurationManager.CurrentPresetMap])
-			{
-                if (!CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Any(x => x.Key == process.Name))
-                    CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Add(process.Name, new MapProcess());
+                foreach (var process in CompileProcessesSubList[ConfigurationManager.CurrentPresetMap])
+                {
+                    if (!CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Any(x => x.Key == process.Name))
+                        CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].Processes.Add(process.Name, new MapProcess());
+                }
+
+                PersistenceManager.ForceMapFilesWrite();
             }
-
-            PersistenceManager.ForceMapFilesWrite();
             //
         }
 
