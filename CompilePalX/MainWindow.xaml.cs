@@ -725,7 +725,7 @@ namespace CompilePalX
 						RemoveParameterButton.IsEnabled = true;
 					}
 
-					UpdateParameterTextBox();
+					UpdateParameterTextBox(false);
 	            }
             }
 
@@ -777,9 +777,10 @@ namespace CompilePalX
             //
         }
 
-        void UpdateParameterTextBox()
+        void UpdateParameterTextBox(bool savePresetMaps = true)
         {
-            ConfigurationManager.SavePresetsMaps();
+            if (savePresetMaps)
+                ConfigurationManager.SavePresetsMaps();
 
             if (selectedProcess == null)
                 ParametersTextBox.Text = string.Empty;
