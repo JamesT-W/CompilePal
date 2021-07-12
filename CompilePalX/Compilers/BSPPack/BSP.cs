@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,8 @@ namespace CompilePalX.Compilers.BSPPack
         private KeyValuePair<int, int>[] offsets; // offset/length
 
         public List<Dictionary<string, string>> entityList { get; private set; }
+
+        public List<List<Tuple<string, string>>> entityListArrayForm { get; private set; }
 
         public List<int>[] modelSkinList { get; private set; }
 
@@ -122,6 +125,7 @@ namespace CompilePalX.Compilers.BSPPack
         public void buildEntityList()
         {
             entityList = new List<Dictionary<string, string>>();
+            entityListArrayForm = new List<List<Tuple<string, string>>>();
 
             bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
             byte[] ent = reader.ReadBytes(offsets[0].Value);
@@ -153,6 +157,7 @@ namespace CompilePalX.Compilers.BSPPack
 
 					string rawent = Encoding.ASCII.GetString(ents.ToArray());
                     Dictionary<string, string> entity = new Dictionary<string, string>();
+                    var entityArrayFormat = new List<Tuple<string, string>>();
 					// split on \n, ignore \n inside of quotes
                     foreach (string s in Regex.Split(rawent, "(?=(?:(?:[^\"]*\"){2})*[^\"]*$)\\n"))
                     {
@@ -161,9 +166,11 @@ namespace CompilePalX.Compilers.BSPPack
                             string[] c = s.Split('"');
                             if (!entity.ContainsKey(c[1]))
                                 entity.Add(c[1], c[3]);
+                            entityArrayFormat.Add(Tuple.Create(c[1], c[3]));
                         }
                     }
                     entityList.Add(entity);
+                    entityListArrayForm.Add(entityArrayFormat);
                     ents = new List<byte>();
                 }
             }
@@ -248,6 +255,10 @@ namespace CompilePalX.Compilers.BSPPack
 				if (ent["classname"].Contains("env_funnel"))
 					materials.Add("sprites/flare6.vmt");
 
+				// special condition for env_embers. Hardcoded to use particle/fire.vmt
+				if (ent["classname"].Contains("env_embers"))
+					materials.Add("particle/fire.vmt");
+
 				// special condition for vgui_slideshow_display. directory paramater references all textures in a folder (does not include subfolders)
 				if (ent["classname"].Contains("vgui_slideshow_display"))
 	            {
@@ -278,22 +289,6 @@ namespace CompilePalX.Compilers.BSPPack
                     }
 				}
 
-				// pack IO triggered screen_overlay materials
-				var screenOverlays = ent.Values.Where((e) => e.Contains("r_screenoverlay"));
-				if (screenOverlays.Any())
-				{
-					foreach (var screenOverlay in screenOverlays)
-					{
-						var overlay = screenOverlay.Split(',')
-							.Where((e) => e.Contains("r_screenoverlay"))
-							.Select((e) => e.Replace("r_screenoverlay ", ""))
-							.FirstOrDefault();
-
-						if (overlay != null)
-							materials.Add(overlay);
-					}
-				}
-
                 // format and add materials
                 foreach (string material in materials)
                 {
@@ -303,6 +298,26 @@ namespace CompilePalX.Compilers.BSPPack
 
                     EntTextureList.Add("materials/" + materialpath);
                 }
+            }
+
+            // get all overlay mats
+            var uniqueMats = new HashSet<string>();
+            foreach (var ent in entityListArrayForm)
+            {
+                foreach(var kv in ent)
+                {
+                    var match = Regex.Match(kv.Item2, @"r_screenoverlay ([^,]+),");
+                    if(match.Success)
+                    {
+                        uniqueMats.Add(match.Groups[1].Value);
+                    }
+                }
+            }
+
+            foreach(var mat in uniqueMats)
+            {
+                var path = string.Format("materials/{0}.vmt", mat);
+                EntTextureList.Add(path);
             }
         }
 
