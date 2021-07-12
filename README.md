@@ -32,7 +32,15 @@ Get the latest features without having to wait. Experimental releases may be uns
 
 
 ## Features
+Compile Pal Multi
 * Map Based Packing
+* Packs CS:GO Danger Zone files
+* Packs additional files missed by the original
+* Stores and shows previous compile times
+* Lots more minor features
+
+Original Compile Pal
+* Packing
 * Error Checking
 * Not freezing your computer while compiling
 * Cubemaps
