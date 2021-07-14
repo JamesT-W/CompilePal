@@ -127,16 +127,19 @@ namespace CompilePalX
             if (!CompilingManager.MapFiles.Any())
             {
                 SelectMapButton.IsEnabled = false;
+                SelectMapButton.Content = "Add VMF...";
                 ClearMapButton.IsEnabled = false;
             }
             else if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File != null)
             {
-                SelectMapButton.IsEnabled = false;
+                SelectMapButton.IsEnabled = true;
+                SelectMapButton.Content = "Swap VMF...";
                 ClearMapButton.IsEnabled = true;
             }
             else
             {
                 SelectMapButton.IsEnabled = true;
+                SelectMapButton.Content = "Add VMF...";
                 ClearMapButton.IsEnabled = false;
             }
         }
@@ -795,16 +798,12 @@ namespace CompilePalX
 
         private void SelectMapButton_Click(object sender, RoutedEventArgs e)
         {
-            // do not allow more than one map file for each map preset
-            if (CompilingManager.MapFiles.Any() && CompilingManager.MapFiles.Keys.Any(x => x == ConfigurationManager.CurrentPresetMap) && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap] != null && CompilingManager.MapFiles[ConfigurationManager.CurrentPresetMap].File != null)
-                return;
-
             var dialog = new OpenFileDialog();
 
             if (GameConfigurationManager.GameConfiguration.SDKMapFolder != null)
                 dialog.InitialDirectory = GameConfigurationManager.GameConfiguration.SDKMapFolder;
 
-            dialog.Multiselect = true;
+            dialog.Multiselect = false;
             dialog.Filter = "Map files (*.vmf;*.vmm)|*.vmf;*.vmm";
 
             try
